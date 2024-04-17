@@ -17,6 +17,7 @@ import TabFruits from "./TabFruits";
 import TabFlowers from "./TabFlowers";
 import Forum from "./Forum";
 import WelcomeScreen from "./WelcomeScreen";
+import TrackingPage from "./TrackingPage";
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,7 @@ const App = () => {
         <Stack.Screen name="TabFruits" component={TabFruits} />
         <Stack.Screen name="TabFlowers" component={TabFlowers} />
         <Stack.Screen name="Forum" component={Forum} />
+        <Stack.Screen name="TrackingPage" component={TrackingPage} />
       </Stack.Navigator>
     </NavigationContainer>
   );
