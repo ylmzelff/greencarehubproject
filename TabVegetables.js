@@ -10,6 +10,10 @@ const TabVegetables = () => {
     navigation.navigate("SearchAndAdd");
   };
 
+  const handleTextContainerPress = () => {
+    navigation.navigate("TrackingPage");
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Vegetables</Text>
@@ -43,10 +47,12 @@ const TabVegetables = () => {
             style={{ width: 120, height: 100, resizeMode: "contain" }}
           />
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text1}>My Little Tomato</Text>
-          <Text style={styles.text2}>Last watered x days ago</Text>
-        </View>
+        <TouchableOpacity style={styles.textContainer} onPress={handleTextContainerPress}>
+          <View style={styles.textContainer}>
+            <Text style={styles.text1}>My Little Tomato</Text>
+            <Text style={styles.text2}>Last watered x days ago</Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <View style={styles.rectangleContainer}>
         {/* Resim */}
@@ -56,10 +62,12 @@ const TabVegetables = () => {
             style={{ width: 120, height: 100, resizeMode: "contain" }}
           />
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text1}>My Little Parsley</Text>
-          <Text style={styles.text2}>Last watered x days ago</Text>
-        </View>
+        <TouchableOpacity style={styles.textContainer} onPress={handleTextContainerPress}>
+          <View style={styles.textContainer}>
+            <Text style={styles.text1}>My Little Parsley</Text>
+            <Text style={styles.text2}>Last watered x days ago</Text>
+          </View>
+        </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
         <AntDesign name="pluscircle" size={50} color="black" />
@@ -126,29 +134,28 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: 100,
     zIndex: 1,
-    // backgroundColor: 'lightgrey', //domatesin olduğu containerın rengi
   },
   textContainer: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(144, 238, 144, 0.7)", // Opaklık eklenmiş arka plan rengi
-    height: 100, // Metin kutucuklarının yüksekliği
+    backgroundColor: "rgba(144, 238, 144, 0.7)",
+    height: 100,
     width: "95%",
-    marginLeft: 30, // Metin kutusu sağa kaydırıldı
-    paddingLeft: 20, // Metinlerin içeriye doğru kayması için
-    borderRadius: 20, // Kenarları yuvarlama
+    marginLeft: 30,
+    paddingLeft: 20,
+    borderRadius: 20,
     zIndex: 0,
   },
   text1: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10, // Metinler arasındaki boşluk
+    marginBottom: 10,
     marginLeft: 20,
     paddingLeft: 20,
   },
   text2: {
     fontSize: 18,
-    marginBottom: 10, // Metinler arasındaki boşluk
+    marginBottom: 10,
     marginLeft: 20,
     paddingLeft: 20,
   },
