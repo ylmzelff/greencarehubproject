@@ -13,22 +13,22 @@ class ExpertSignInScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
+      nickname_exp: "", // Değişiklik: 'email' yerine 'nickname_exp'
       password: "",
       showSuccessMessage: false,
     };
   }
 
   handleLogin = () => {
-    const { email, password } = this.state;
+    const { nickname_exp, password } = this.state;
 
-    fetch("http://10.30.3.96:80/compproject/expsignincheck.php", {
+    fetch("http://192.168.1.106/compproject/expsignincheck.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ nickname_exp, password }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -42,9 +42,9 @@ class ExpertSignInScreen extends Component {
           setTimeout(() => {
             this.setState({ showSuccessMessage: false });
           }, 3000);
-          this.handleSignIn();
+          this.handleSignIn(nickname_exp);
         } else if (data.Message === "false") {
-          Alert.alert("Uyarı", "Email veya şifre yanlış!");
+          Alert.alert("Uyarı", "Nickname veya şifre yanlış!"); // Değişiklik: 'Email' yerine 'Nickname'
         }
       })
       .catch((error) => {
@@ -52,12 +52,14 @@ class ExpertSignInScreen extends Component {
         Alert.alert("Hata", "Bir hata oluştu. Lütfen tekrar deneyin.");
       });
   };
-  handleSignIn = () => {
+
+  handleSignIn = (nickname) => {
     const { navigation } = this.props;
-    navigation.navigate("Main");
+    navigation.navigate("Main", { nickname, userType: "expert" }); // userType ekleniyor
   };
+
   render() {
-    const { email, password, showSuccessMessage } = this.state;
+    const { nickname_exp, password, showSuccessMessage } = this.state;
 
     return (
       <ImageBackground
@@ -69,10 +71,10 @@ class ExpertSignInScreen extends Component {
             <View style={styles.bottomContainer}>
               <TextInput
                 style={styles.placeholderText}
-                placeholder="Email"
+                placeholder="Nickname" // Değişiklik: 'Email' yerine 'Nickname'
                 placeholderTextColor="black"
-                value={email}
-                onChangeText={(email) => this.setState({ email })}
+                value={nickname_exp}
+                onChangeText={(nickname_exp) => this.setState({ nickname_exp })} // Değişiklik: 'email' yerine 'nickname_exp'
               />
               <TextInput
                 style={styles.placeholderText}

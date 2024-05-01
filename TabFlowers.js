@@ -8,9 +8,8 @@ const TabFlowers = () => {
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
-    navigation.navigate("SearchAndAdd");
+    navigation.navigate("FavoritePlants");
   };
-
   return (
     <View style={styles.container}>
       <Text style={styles.title}>My Flowers</Text>

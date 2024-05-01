@@ -13,7 +13,7 @@ export default class EnthusiastSignUpScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nickname: "",
+      nickname_ent: "", // Güncelleme: nickname_ent olarak değiştirildi
       email: "",
       password: "",
       confirm_password: "",
@@ -21,26 +21,26 @@ export default class EnthusiastSignUpScreen extends Component {
   }
 
   InsertRecord = () => {
-    var nickname = this.state.nickname;
+    var nickname_ent = this.state.nickname_ent; // Güncelleme: nickname_ent olarak değiştirildi
     var email = this.state.email;
     var password = this.state.password;
     var confirm_password = this.state.confirm_password;
 
     if (
-      nickname.length === 0 ||
+      nickname_ent.length === 0 || // Güncelleme: nickname_ent olarak değiştirildi
       email.length === 0 ||
       password.length === 0 ||
       confirm_password.length === 0
     ) {
       alert("Required Field is missing!");
     } else {
-      var InsertAPIURL = "http://127.0.0.1:3308/compproject/insert1.php";
+      var InsertAPIURL = "http://192.168.1.106/compproject/insert1.php";
       var headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
       };
       var Data = {
-        nickname: nickname,
+        nickname_ent: nickname_ent, // Güncelleme: nickname_ent olarak değiştirildi
         email: email,
         password: password,
         confirm_password: confirm_password,
@@ -59,6 +59,7 @@ export default class EnthusiastSignUpScreen extends Component {
             response[0].Message ===
             "Enthusiast has been registered successfully"
           ) {
+            this.props.navigation.navigate("Forum", { nickname: nickname_ent }); // Güncelleme: nickname_ent olarak değiştirildi
             this.handleSignIn();
           }
         })
@@ -69,7 +70,7 @@ export default class EnthusiastSignUpScreen extends Component {
   };
 
   handleSignIn = () => {
-    this.props.navigation.navigate("Main");
+    this.props.navigation.navigate("EnthusiastSignIn");
   };
 
   render() {
@@ -85,7 +86,7 @@ export default class EnthusiastSignUpScreen extends Component {
                 placeholder="Nickname"
                 placeholderTextColor="black"
                 style={styles.txtStyle}
-                onChangeText={(nickname) => this.setState({ nickname })}
+                onChangeText={(nickname_ent) => this.setState({ nickname_ent })} // Güncelleme: nickname_ent olarak değiştirildi
               />
               <TextInput
                 placeholder="Email"

@@ -13,7 +13,7 @@ export default class ExpertSignUpScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nickname: "",
+      nickname_exp: "",
       email: "",
       password: "",
       confirm_password: "",
@@ -21,26 +21,23 @@ export default class ExpertSignUpScreen extends Component {
   }
 
   InsertRecord = () => {
-    var nickname = this.state.nickname;
-    var email = this.state.email;
-    var password = this.state.password;
-    var confirm_password = this.state.confirm_password;
+    const { nickname_exp, email, password, confirm_password } = this.state;
 
     if (
-      nickname.length === 0 ||
+      nickname_exp.length === 0 ||
       email.length === 0 ||
       password.length === 0 ||
       confirm_password.length === 0
     ) {
       alert("Required Field is missing!");
     } else {
-      var InsertAPIURL = "http://10.30.3.96:80/compproject/insert.php";
+      var InsertAPIURL = "http://192.168.1.106:80/compproject/insert.php";
       var headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
       };
       var Data = {
-        nickname: nickname,
+        nickname_exp: nickname_exp,
         email: email,
         password: password,
         confirm_password: confirm_password,
@@ -57,7 +54,7 @@ export default class ExpertSignUpScreen extends Component {
           if (
             response[0].Message === "Expert has been registered successfully"
           ) {
-            this.handleSignIn();
+            this.handleSignIn(email);
           }
         })
         .catch((error) => {
@@ -66,8 +63,9 @@ export default class ExpertSignUpScreen extends Component {
     }
   };
 
-  handleSignIn = () => {
-    this.props.navigation.navigate("Main");
+  handleSignIn = (email) => {
+    const { navigation } = this.props;
+    navigation.navigate("Main", { nickname: email });
   };
 
   render() {
@@ -83,7 +81,7 @@ export default class ExpertSignUpScreen extends Component {
                 placeholder="Nickname"
                 placeholderTextColor="black"
                 style={styles.txtStyle}
-                onChangeText={(nickname) => this.setState({ nickname })}
+                onChangeText={(nickname_exp) => this.setState({ nickname_exp })}
               />
               <TextInput
                 placeholder="Email"

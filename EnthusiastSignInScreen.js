@@ -13,21 +13,21 @@ export default class EnthusiastSignInScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "",
+      nickname_ent: "", // Güncelleme: nickname_ent olarak değiştirildi
       password: "",
     };
   }
 
   handleLogin = () => {
-    const { email, password } = this.state;
+    const { nickname_ent, password } = this.state; // Güncelleme: nickname_ent olarak değiştirildi
 
-    fetch("http://10.30.3.96:80/compproject/entsignincheck.php", {
+    fetch("http://192.168.1.106:80/compproject/entsignincheck.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ nickname_ent, password }), // Güncelleme: nickname_ent olarak değiştirildi
     })
       .then((response) => {
         if (!response.ok) {
@@ -41,9 +41,9 @@ export default class EnthusiastSignInScreen extends Component {
           setTimeout(() => {
             this.setState({ showSuccessMessage: false });
           }, 3000);
-          this.handleSignIn();
+          this.handleSignIn(); // Giriş başarılı olduğunda handleSignIn fonksiyonunu çağır
         } else if (data.Message === "false") {
-          Alert.alert("Uyarı", "Email veya şifre yanlış!");
+          Alert.alert("Uyarı", "Nickname veya şifre yanlış!");
         }
       })
       .catch((error) => {
@@ -54,7 +54,11 @@ export default class EnthusiastSignInScreen extends Component {
 
   handleSignIn = () => {
     const { navigation } = this.props;
-    navigation.navigate("Main");
+    const { nickname_ent } = this.state; // Güncelleme: nickname_ent olarak değiştirildi
+    navigation.navigate("Main", {
+      nickname: nickname_ent,
+      userType: "enthusiast",
+    }); // Güncelleme: userType ekleniyor
   };
 
   render() {
@@ -66,16 +70,22 @@ export default class EnthusiastSignInScreen extends Component {
         <View style={styles.container}>
           <View style={styles.overlay}>
             <View style={styles.bottomContainer}>
+              <TouchableOpacity onPress={() => this.nicknameInput.focus()}>
+                <Text style={styles.placeholderText}>Nickname</Text>
+              </TouchableOpacity>
               <TextInput
-                style={styles.placeholderText}
-                placeholder="Email"
+                ref={(input) => (this.nicknameInput = input)}
+                style={styles.input}
                 placeholderTextColor="black"
-                value={this.state.email}
-                onChangeText={(email) => this.setState({ email })}
+                value={this.state.nickname_ent}
+                onChangeText={(nickname_ent) => this.setState({ nickname_ent })}
               />
+              <TouchableOpacity onPress={() => this.passwordInput.focus()}>
+                <Text style={styles.placeholderText}>Password</Text>
+              </TouchableOpacity>
               <TextInput
-                style={styles.placeholderText}
-                placeholder="Password"
+                ref={(input) => (this.passwordInput = input)}
+                style={styles.input}
                 placeholderTextColor="black"
                 secureTextEntry
                 value={this.state.password}

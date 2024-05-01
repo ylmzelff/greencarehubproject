@@ -7,7 +7,7 @@ const TabVegetables = () => {
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
-    navigation.navigate("SearchAndAdd");
+    navigation.navigate("FavoritePlants");
   };
 
   const handleTextContainerPress = () => {
@@ -47,7 +47,10 @@ const TabVegetables = () => {
             style={{ width: 120, height: 100, resizeMode: "contain" }}
           />
         </View>
-        <TouchableOpacity style={styles.textContainer} onPress={handleTextContainerPress}>
+        <TouchableOpacity
+          style={styles.textContainer}
+          onPress={handleTextContainerPress}
+        >
           <View style={styles.textContainer}>
             <Text style={styles.text1}>My Little Tomato</Text>
             <Text style={styles.text2}>Last watered x days ago</Text>
@@ -62,7 +65,10 @@ const TabVegetables = () => {
             style={{ width: 120, height: 100, resizeMode: "contain" }}
           />
         </View>
-        <TouchableOpacity style={styles.textContainer} onPress={handleTextContainerPress}>
+        <TouchableOpacity
+          style={styles.textContainer}
+          onPress={handleTextContainerPress}
+        >
           <View style={styles.textContainer}>
             <Text style={styles.text1}>My Little Parsley</Text>
             <Text style={styles.text2}>Last watered x days ago</Text>

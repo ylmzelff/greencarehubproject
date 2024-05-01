@@ -9,13 +9,17 @@ const HomeScreen = ({ navigation }) => {
       <View style={styles.optionsContainer}>
         <TouchableOpacity
           style={styles.option}
-          onPress={() => navigation.navigate("ExpertHome")}
+          onPress={() =>
+            navigation.navigate("ExpertHome", { userType: "expert" })
+          }
         >
           <Text style={styles.optionText}>Expert</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.option}
-          onPress={() => navigation.navigate("EnthusiastHome")}
+          onPress={() =>
+            navigation.navigate("EnthusiastHome", { userType: "enthusiast" })
+          }
         >
           <Text style={styles.optionText}>Enthusiast</Text>
         </TouchableOpacity>

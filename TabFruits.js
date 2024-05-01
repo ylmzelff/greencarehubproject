@@ -7,7 +7,7 @@ const TabFruits = () => {
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
-    navigation.navigate("SearchAndAdd");
+    navigation.navigate("FavoritePlants");
   };
 
   return (

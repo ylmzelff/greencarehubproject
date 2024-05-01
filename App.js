@@ -1,5 +1,3 @@
-// App.js
-
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
@@ -17,7 +15,7 @@ import TabFruits from "./TabFruits";
 import TabFlowers from "./TabFlowers";
 import Forum from "./Forum";
 import WelcomeScreen from "./WelcomeScreen";
-import TrackingPage from "./TrackingPage";
+import TrackingPage from "./TrackingPage"; // Buraya ekledik
 
 const Stack = createStackNavigator();
 

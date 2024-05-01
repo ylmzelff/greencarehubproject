@@ -1,29 +1,38 @@
 import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { View, Text, StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SearchAndAddPage from "./SearchAndAddPage";
 import Forum from "./Forum";
 import Swiper from "react-native-swiper";
 import TabVegetables from "./TabVegetables";
 import TabFruits from "./TabFruits";
+import FavoritePlants from "./FavoritePlants";
 import TabFlowers from "./TabFlowers";
+
+import { AntDesign } from "@expo/vector-icons"; // AntDesign'ı import ediyoruz
 
 const Tab = createBottomTabNavigator();
 
-const MainPage = ({ navigation }) => {
+const MainPage = ({ route }) => {
+  const { nickname, userType } = route.params;
+
   return (
     <View style={styles.container}>
+      <Text style={styles.welcomeText}>
+        Hoş geldiniz, {nickname}! User Type: {userType}
+      </Text>
       <Swiper style={styles.wrapper} showsButtons={false}>
-        <TabVegetables />
-        <TabFruits />
-        <TabFlowers />
+        <TabVegetables userType={userType} />
+        <TabFruits userType={userType} />
+        <TabFlowers userType={userType} />
       </Swiper>
     </View>
   );
 };
 
-const BottomTabNavigator = () => {
+const BottomTabNavigator = ({ route }) => {
+  const { nickname, userType } = route.params;
+
   return (
     <Tab.Navigator>
       <Tab.Screen
@@ -34,10 +43,12 @@ const BottomTabNavigator = () => {
             <AntDesign name="message1" size={size} color={color} />
           ),
         }}
+        initialParams={{ nickname: nickname, userType: userType }}
       />
       <Tab.Screen
         name="Home"
         component={MainPage}
+        initialParams={{ nickname: nickname, userType: userType }}
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="home" size={size} color={color} />
@@ -52,6 +63,18 @@ const BottomTabNavigator = () => {
             <AntDesign name="search1" size={size} color={color} />
           ),
         }}
+        initialParams={{ nickname: nickname, userType: userType }}
+      />
+      {/* Favori Bitkiler ekranını ekliyoruz */}
+      <Tab.Screen
+        name="FavoritePlants"
+        component={FavoritePlants}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="hearto" size={size} color={color} />
+          ),
+        }}
+        initialParams={{ nickname: nickname, userType: userType }}
       />
     </Tab.Navigator>
   );
@@ -63,41 +86,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  title: {
+  welcomeText: {
     fontSize: 24,
     fontWeight: "bold",
-    marginBottom: 20,
-    marginTop: 100,
+    marginTop: 20,
   },
-  boxContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 70,
-    right: 30,
-  },
-  box: {
-    width: 100,
-    height: 35,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  flowersBox: {
-    backgroundColor: "#739072",
-  },
-  vegetablesBox: {
-    backgroundColor: "#739072",
-  },
-  fruitsBox: {
-    backgroundColor: "739072",
-  },
-  boxText: {
-    marginTop: 5,
-    textAlign: "center",
+  wrapper: {
+    width: "100%",
   },
 });
 
