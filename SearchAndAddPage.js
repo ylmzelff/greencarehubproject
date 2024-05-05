@@ -1,23 +1,27 @@
-import React, { Component } from "react";
-import { View, Text, TouchableOpacity, TextInput, Alert } from "react-native";
+import React, { useState } from "react";
+import { AntDesign } from "@expo/vector-icons";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  StyleSheet,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-export default class SearchAndAddPage extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchText: "",
-      plantDetails: [],
-      error: null,
-    };
-  }
+const SearchAndAddPage = ({ route }) => {
+  const { nickname, userType } = route.params;
+  const [searchText, setSearchText] = useState("");
+  const [plantDetails, setPlantDetails] = useState([]);
+  const [error, setError] = useState(null);
+  const [isAddingPlant, setIsAddingPlant] = useState(false);
+  const [nickText, setNickText] = useState("");
 
-  handleSearch = async () => {
-    const { searchText } = this.state;
-
+  const handleSearch = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.106:80/compproject/check_plant.php`,
+        "http://10.30.19.255:80/compproject/check_plant.php",
         {
           method: "POST",
           headers: {
@@ -31,7 +35,6 @@ export default class SearchAndAddPage extends Component {
       const data = await response.json();
 
       if (response.status === 200) {
-        // Bitki bulunduğunda
         console.log("Bitki bulundu:", data);
         Alert.alert(
           "Success!",
@@ -39,15 +42,9 @@ export default class SearchAndAddPage extends Component {
           [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
           { cancelable: false }
         );
-        // Bitki bilgilerini state'e kaydet
-        this.setState({
-          plantDetails: data.Data,
-          error: null,
-        });
-        // Bitki arama sayacını güncelle
-        this.updateSearchCount(searchText);
+        setPlantDetails(data.Data);
+        updateSearchCount(searchText);
       } else if (response.status === 404) {
-        // Bitki bulunamadığında
         console.log("Bitki bulunamadı");
         Alert.alert(
           "Error",
@@ -55,10 +52,8 @@ export default class SearchAndAddPage extends Component {
           [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
           { cancelable: false }
         );
-        this.setState({
-          plantDetails: [],
-          error: "Bitki bulunamadı",
-        });
+        setPlantDetails([]);
+        setError("Bitki bulunamadı");
       } else {
         throw new Error(data.Message || "Beklenmeyen bir hata oluştu");
       }
@@ -70,17 +65,15 @@ export default class SearchAndAddPage extends Component {
         [{ text: "Tamam", onPress: () => console.log("OK Pressed") }],
         { cancelable: false }
       );
-      this.setState({
-        plantDetails: [],
-        error: "Beklenmeyen bir hata oluştu",
-      });
+      setPlantDetails([]);
+      setError("Beklenmeyen bir hata oluştu");
     }
   };
 
-  updateSearchCount = async (searchText) => {
+  const updateSearchCount = async (searchText) => {
     try {
       const response = await fetch(
-        `http://192.168.1.106:80/compproject/update_search_count.php`,
+        "http://110.30.19.255:80/compproject/update_search_count.php",
         {
           method: "POST",
           headers: {
@@ -109,14 +102,114 @@ export default class SearchAndAddPage extends Component {
     }
   };
 
-  render() {
-    const { plantDetails } = this.state;
+  const handleAddPlant = async () => {
+    try {
+      if (!nickText) {
+        Alert.alert(
+          "Error",
+          "Please enter a nickname",
+          [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+          { cancelable: false }
+        );
+        return;
+      }
 
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Search And Add Page</Text>
+      if (plantDetails.length === 0) {
+        Alert.alert(
+          "Error",
+          "Please search and select a plant first",
+          [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+          { cancelable: false }
+        );
+        return;
+      }
+
+      const plantData = {
+        nickname: nickname,
+        plant_nickname: nickText,
+        name: plantDetails[0].name,
+        frequency: plantDetails[0].water,
+        category: plantDetails[0].category_name,
+      };
+
+      const response = await fetch(
+        "http://10.30.19.255:80/compproject/user_plants.php",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(plantData),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        console.log("Nickname başarıyla eklendi:", data.Message);
+        Alert.alert(
+          "Success!",
+          "Nickname added successfully!",
+          [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+          { cancelable: false }
+        );
+      } else {
+        throw new Error(data.Message || "Beklenmeyen bir hata oluştu");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Hata",
+        "Nickname eklenirken bir hata oluştu",
+        [{ text: "Tamam", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+    }
+  };
+
+  return (
+    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+      <Text>Search And Add Page</Text>
+      <View style={{ marginTop: 20 }}>
+        <Text style={styles.welcomeText}>
+          Hoş geldiniz, {nickname}! User Type: {userType}
+        </Text>
+
+        <Text>Enter a plant name:</Text>
+        <TextInput
+          style={{
+            borderWidth: 1,
+            borderColor: "#ccc",
+            borderRadius: 5,
+            padding: 8,
+            marginTop: 8,
+            width: 200,
+          }}
+          value={searchText}
+          onChangeText={(text) => setSearchText(text)}
+        />
+        <TouchableOpacity style={{ marginTop: 10 }} onPress={handleSearch}>
+          <Ionicons name="search" size={24} color="black" />
+        </TouchableOpacity>
+      </View>
+
+      {plantDetails && plantDetails.length > 0 && (
         <View style={{ marginTop: 20 }}>
-          <Text>Enter a plant name:</Text>
+          <Text>Plant Details:</Text>
+          {plantDetails.map((plant, index) => (
+            <View key={index} style={{ marginTop: 10 }}>
+              <Text>Name: {plant.name}</Text>
+              <Text>Category: {plant.category_name}</Text>
+              <Text>Ideal Temperature: {plant.ideal_temperature}</Text>
+              <Text>Lifespan: {plant.lifespan}</Text>
+              <Text>Soilcare: {plant.soilcare}</Text>
+              <Text>Sunlight: {plant.sunlight}</Text>
+              <Text>Planting Time: {plant.planting_time}</Text>
+              <Text>Water: {plant.water}</Text>
+            </View>
+          ))}
+          <Text>Enter a nickname:</Text>
           <TextInput
             style={{
               borderWidth: 1,
@@ -126,42 +219,25 @@ export default class SearchAndAddPage extends Component {
               marginTop: 8,
               width: 200,
             }}
-            value={this.state.searchText}
-            onChangeText={(text) => this.setState({ searchText: text })}
+            value={nickText}
+            onChangeText={(text) => setNickText(text)}
           />
-          <TouchableOpacity
-            style={{ marginTop: 10 }}
-            onPress={this.handleSearch}
-          >
-            <Ionicons name="search" size={24} color="black" />
+          <TouchableOpacity style={{ marginTop: 10 }} onPress={handleAddPlant}>
+            <Ionicons name="add" size={24} color="black" />
           </TouchableOpacity>
         </View>
+      )}
 
-        {plantDetails && plantDetails.length > 0 && (
-          <View style={{ marginTop: 20 }}>
-            <Text>Plant Details:</Text>
-            {plantDetails.map((plant, index) => (
-              <View key={index} style={{ marginTop: 10 }}>
-                <Text>Name: {plant.name}</Text>
-                <Text>Category: {plant.category_name}</Text>
-                <Text>Ideal Temperature: {plant.ideal_temperature}</Text>
-                <Text>Lifespan: {plant.lifespan}</Text>
-                <Text>Soilcare: {plant.soilcare}</Text>
-                <Text>Sunlight: {plant.sunlight}</Text>
-                <Text>Planting Time: {plant.planting_time}</Text>
-                <Text>Water: {plant.water}</Text>
-              </View>
-            ))}
-          </View>
-        )}
+      {error && <Text style={{ color: "red", marginTop: 20 }}>{error}</Text>}
+    </View>
+  );
+};
 
-        {/* Hata mesajını göster */}
-        {this.state.error && (
-          <Text style={{ color: "red", marginTop: 20 }}>
-            {this.state.error}
-          </Text>
-        )}
-      </View>
-    );
-  }
-}
+const styles = StyleSheet.create({
+  welcomeText: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 10,
+  },
+});
+export default SearchAndAddPage;

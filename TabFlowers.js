@@ -1,18 +1,59 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-
-import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { AntDesign } from "@expo/vector-icons";
+import { MainContext } from "./MainContext";
 
 const TabFlowers = () => {
+  const { nickname } = useContext(MainContext);
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
     navigation.navigate("FavoritePlants");
   };
+
+  const [flowers, setFlowers] = useState([]);
+
+  useEffect(() => {
+    fetch("http://192.168.1.106:80/compproject/get_flower.php", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ nickname: nickname }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setFlowers(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        console.error("Error fetching data for nickname:", nickname);
+      });
+  }, []);
+
+  const handleTrackingPage = (
+    plantNickname,
+    plantName,
+    idealTemperature,
+    sunlight
+  ) => {
+    navigation.navigate("TrackingPage", {
+      plantNickname: plantNickname,
+      plantRealName: plantName,
+      plantTemperature: idealTemperature,
+      plantLight: sunlight,
+    });
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Flowers</Text>
       <View style={styles.boxContainer}>
         <TouchableOpacity
           style={[styles.box, styles.flowersBox]}
@@ -33,32 +74,34 @@ const TabFlowers = () => {
           <Text style={styles.boxText}>Fruits</Text>
         </TouchableOpacity>
       </View>
-      <View style={styles.rectangleContainer}>
-        {/* Resim */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("./assets/tulip.png")}
-            style={{ width: 120, height: 100, resizeMode: "contain" }}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text1}>My Little tulip</Text>
-          <Text style={styles.text2}>Last watered x days ago</Text>
-        </View>
-      </View>
-      <View style={styles.rectangleContainer}>
-        {/* Resim */}
-        <View style={styles.imageContainer}>
-          <Image
-            source={require("./assets/orchid.png")}
-            style={{ width: 120, height: 100, resizeMode: "contain" }}
-          />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text1}>My Little orchid</Text>
-          <Text style={styles.text2}>Last watered x days ago</Text>
-        </View>
-      </View>
+      <Text style={styles.title}>My Flowers</Text>
+      <Text>Nickname: {nickname}</Text>
+      {flowers.map((flower, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.rectangleContainer}
+          onPress={() =>
+            handleTrackingPage(
+              flower.plant_nickname,
+              flower.name,
+              flower.ideal_temperature,
+              flower.sunlight
+            )
+          }
+        >
+          <View style={styles.imageContainer}>
+            <Image
+              //source={{ uri: flower.image_url }} // Add a default image source
+              style={{ width: 120, height: 100, resizeMode: "contain" }}
+            />
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={styles.text1}>{flower.plant_nickname}</Text>
+            <Text style={styles.text2}>Last watered x days ago</Text>
+          </View>
+        </TouchableOpacity>
+      ))}
+
       <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
         <AntDesign name="pluscircle" size={50} color="black" />
       </TouchableOpacity>
@@ -96,20 +139,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flowersBox: {
-    backgroundColor: "green",
+    backgroundColor: "#739072",
   },
   vegetablesBox: {
     backgroundColor: "#739072",
   },
   fruitsBox: {
-    backgroundColor: "#739072",
+    backgroundColor: "green",
+  },
+  flowersText: {
+    color: "white",
   },
   boxText: {
     marginTop: 5,
     textAlign: "center",
-  },
-  flowersText: {
-    color: "white",
   },
   rectangleContainer: {
     flexDirection: "row",

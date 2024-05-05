@@ -22,7 +22,7 @@ class ExpertSignInScreen extends Component {
   handleLogin = () => {
     const { nickname_exp, password } = this.state;
 
-    fetch("http://192.168.1.106/compproject/expsignincheck.php", {
+    fetch("http://192.168.1.106:80/compproject/expsignincheck.php", {
       method: "POST",
       headers: {
         Accept: "application/json",

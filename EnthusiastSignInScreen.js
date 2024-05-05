@@ -1,3 +1,4 @@
+// EnthusiastSignInScreen.js
 import React, { Component } from "react";
 import {
   View,
@@ -19,7 +20,7 @@ export default class EnthusiastSignInScreen extends Component {
   }
 
   handleLogin = () => {
-    const { nickname_ent, password } = this.state; // Güncelleme: nickname_ent olarak değiştirildi
+    const { nickname_ent, password } = this.state;
 
     fetch("http://192.168.1.106:80/compproject/entsignincheck.php", {
       method: "POST",
@@ -27,7 +28,7 @@ export default class EnthusiastSignInScreen extends Component {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nickname_ent, password }), // Güncelleme: nickname_ent olarak değiştirildi
+      body: JSON.stringify({ nickname_ent, password }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -41,7 +42,7 @@ export default class EnthusiastSignInScreen extends Component {
           setTimeout(() => {
             this.setState({ showSuccessMessage: false });
           }, 3000);
-          this.handleSignIn(); // Giriş başarılı olduğunda handleSignIn fonksiyonunu çağır
+          this.handleSignIn();
         } else if (data.Message === "false") {
           Alert.alert("Uyarı", "Nickname veya şifre yanlış!");
         }
@@ -54,11 +55,11 @@ export default class EnthusiastSignInScreen extends Component {
 
   handleSignIn = () => {
     const { navigation } = this.props;
-    const { nickname_ent } = this.state; // Güncelleme: nickname_ent olarak değiştirildi
+    const { nickname_ent } = this.state;
     navigation.navigate("Main", {
       nickname: nickname_ent,
       userType: "enthusiast",
-    }); // Güncelleme: userType ekleniyor
+    });
   };
 
   render() {

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 
 const FavoritePlants = () => {
   const [plants, setPlants] = useState([]);

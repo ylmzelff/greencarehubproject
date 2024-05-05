@@ -15,40 +15,46 @@ import TabFruits from "./TabFruits";
 import TabFlowers from "./TabFlowers";
 import Forum from "./Forum";
 import WelcomeScreen from "./WelcomeScreen";
-import TrackingPage from "./TrackingPage"; // Buraya ekledik
+import TrackingPage from "./TrackingPage";
+import { MainProvider } from "./MainContext"; // Buraya ekledik
 
 const Stack = createStackNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
-        <Stack.Screen name="Welcome" component={WelcomeScreen} />
-        <Stack.Screen name="ExpertHome" component={ExpertHomeScreen} />
-        <Stack.Screen name="EnthusiastHome" component={EnthusiastHomeScreen} />
-        <Stack.Screen name="ExpertSignIn" component={ExpertSignInScreen} />
-        <Stack.Screen
-          name="EnthusiastSignIn"
-          component={EnthusiastSignInScreen}
-        />
-        <Stack.Screen name="ExpertSignUp" component={ExpertSignUpScreen} />
-        <Stack.Screen
-          name="EnthusiastSignUp"
-          component={EnthusiastSignUpScreen}
-        />
-        <Stack.Screen
-          name="Main"
-          component={MainPage}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen name="SearchAndAdd" component={SearchAndAddPage} />
-        <Stack.Screen name="TabVegetables" component={TabVegetables} />
-        <Stack.Screen name="TabFruits" component={TabFruits} />
-        <Stack.Screen name="TabFlowers" component={TabFlowers} />
-        <Stack.Screen name="Forum" component={Forum} />
-        <Stack.Screen name="TrackingPage" component={TrackingPage} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <MainProvider>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Welcome">
+          <Stack.Screen name="Welcome" component={WelcomeScreen} />
+          <Stack.Screen name="ExpertHome" component={ExpertHomeScreen} />
+          <Stack.Screen
+            name="EnthusiastHome"
+            component={EnthusiastHomeScreen}
+          />
+          <Stack.Screen name="ExpertSignIn" component={ExpertSignInScreen} />
+          <Stack.Screen
+            name="EnthusiastSignIn"
+            component={EnthusiastSignInScreen}
+          />
+          <Stack.Screen name="ExpertSignUp" component={ExpertSignUpScreen} />
+          <Stack.Screen
+            name="EnthusiastSignUp"
+            component={EnthusiastSignUpScreen}
+          />
+          <Stack.Screen
+            name="Main"
+            component={MainPage}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen name="SearchAndAdd" component={SearchAndAddPage} />
+          <Stack.Screen name="TabVegetables" component={TabVegetables} />
+          <Stack.Screen name="TabFruits" component={TabFruits} />
+          <Stack.Screen name="TabFlowers" component={TabFlowers} />
+          <Stack.Screen name="Forum" component={Forum} />
+          <Stack.Screen name="TrackingPage" component={TrackingPage} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </MainProvider>
   );
 };
 

@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import { AntDesign } from "@expo/vector-icons";
 
-const TrackingPage = () => {
+const TrackingPage = ({ route }) => {
+  const { plantNickname, plantRealName, plantTemperature, plantLight } =
+    route.params;
+
   const [wateringDates, setWateringDates] = useState([
     { date: "2024-04-10", completed: true },
     { date: "2024-04-08", completed: false },
@@ -18,22 +22,6 @@ const TrackingPage = () => {
     //saveWateringDate(updatedDates[index].date);
   };
 
-  // const saveWateringDate = async (date) => {
-  //     try {
-  //         const response = await fetch('http://your-api-url.com/watering', {
-  //             method: 'POST',
-  //             headers: {
-  //                 'Content-Type': 'application/json',
-  //             },
-  //             body: JSON.stringify({ date }),
-  //         });
-  //         const data = await response.json();
-  //         console.log('Watering data saved:', data);
-  //     } catch (error) {
-  //         console.error('Error saving watering data:', error);
-  //     }
-  // };
-
   return (
     <View style={styles.container}>
       <Image
@@ -42,8 +30,8 @@ const TrackingPage = () => {
       />
       <View style={styles.greenContainer}>
         <View style={styles.textContainer}>
-          <Text style={styles.text1}>Plants NickName</Text>
-          <Text style={styles.text2}>Plants Real Name</Text>
+          <Text style={styles.text1}>{plantNickname}</Text>
+          <Text style={styles.text2}>{plantRealName}</Text>
           <View style={styles.lastWateringContainer}>
             <Text style={styles.lastWateringText}>Last watered x day ago</Text>
           </View>
@@ -60,10 +48,12 @@ const TrackingPage = () => {
           <Text style={styles.wateringCircleText}>x days</Text>
         </View>
         <View style={styles.TemperatureCircle}>
-          <Text style={styles.TemperatureCircleText}>x&#176; C</Text>
+          <Text style={styles.TemperatureCircleText}>
+            {plantTemperature}&#176;
+          </Text>
         </View>
         <View style={styles.lightCircle}>
-          <Text style={styles.lightCircleText}>light info</Text>
+          <Text style={styles.lightCircleText}>{plantLight}</Text>
         </View>
       </View>
 
@@ -101,7 +91,7 @@ const TrackingPage = () => {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "flex-start",
     position: "relative",
   },

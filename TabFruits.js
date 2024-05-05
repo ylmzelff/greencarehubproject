@@ -1,68 +1,92 @@
-import React from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
+import { AntDesign } from "@expo/vector-icons";
+import { MainContext } from "./MainContext";
 
 const TabFruits = () => {
+  const { nickname } = useContext(MainContext);
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
     navigation.navigate("FavoritePlants");
   };
 
+  const [fruits, setFruits] = useState([]);
+  useEffect(() => {
+    fetch("http://192.168.1.106:80/compproject/get_fruit.php", {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ nickname: nickname }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        setFruits(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        console.error("Error fetching data for nickname:", nickname);
+      });
+  }, []);
+
+  const handleTrackingPage = (
+    plantNickname,
+    plantName,
+    idealTemperature,
+    sunlight
+  ) => {
+    navigation.navigate("TrackingPage", {
+      plantNickname: plantNickname,
+      plantRealName: plantName,
+      plantTemperature: idealTemperature,
+      plantLight: sunlight,
+    });
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>My Fruits</Text>
       <View style={styles.boxContainer}>
-        <TouchableOpacity
-          style={[styles.box, styles.flowersBox]}
-          onPress={() => navigation.navigate("TabFlowers")}
-        >
-          <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.box, styles.vegetablesBox]}
-          onPress={() => navigation.navigate("TabVegetables")}
-        >
-          <Text style={styles.boxText}>Vegetables</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.box, styles.fruitsBox]}
-          onPress={() => navigation.navigate("TabFruits")}
-        >
-          <Text style={[styles.boxText, styles.fruitsText]}>Fruits</Text>
-        </TouchableOpacity>
+        <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
+
+        <Text style={styles.boxText}>Vegetables</Text>
+
+        <Text style={styles.boxText}>Fruits</Text>
       </View>
-      <View style={styles.rectangleContainer}>
-        {/* Resim */}
-        <View style={styles.imageTextContainer}>
+      <Text style={styles.title}>My Fruits</Text>
+      <Text>Nickname: {nickname}</Text>
+      {fruits.map((fruit, index) => (
+        <TouchableOpacity
+          key={index}
+          style={styles.rectangleContainer}
+          onPress={() =>
+            handleTrackingPage(
+              fruit.plant_nickname,
+              fruit.name,
+              fruit.ideal_temperature,
+              fruit.sunlight
+            )
+          }
+        >
           <View style={styles.imageContainer}>
             <Image
-              source={require("./assets/rasphberry.png")}
-              style={{ width: 180, height: 100, resizeMode: "contain" }}
-            />
-          </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.text1}>My Little rasphberry</Text>
-            <Text style={styles.text2}>Last watered x days ago</Text>
-          </View>
-        </View>
-      </View>
-      <View style={styles.rectangleContainer}>
-        {/* Resim */}
-        <View style={styles.imageTextContainer}>
-          <View style={styles.imageContainer}>
-            <Image
-              source={require("./assets/strawberry.png")}
+              //source={{ uri: fruit.image_url }} // Add a default image source
               style={{ width: 120, height: 100, resizeMode: "contain" }}
             />
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.text1}>My Little strawberry</Text>
+            <Text style={styles.text1}>{fruit.plant_nickname}</Text>
             <Text style={styles.text2}>Last watered x days ago</Text>
           </View>
-        </View>
-      </View>
+        </TouchableOpacity>
+      ))}
       <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
         <AntDesign name="pluscircle" size={50} color="black" />
       </TouchableOpacity>
@@ -120,12 +144,6 @@ const styles = StyleSheet.create({
     width: "90%",
     height: 100,
     marginTop: 20,
-  },
-  imageTextContainer: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
-    width: "100%",
   },
   imageContainer: {
     position: "absolute",
