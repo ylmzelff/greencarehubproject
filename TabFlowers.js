@@ -15,7 +15,7 @@ const TabFlowers = () => {
   const [flowers, setFlowers] = useState([]);
 
   useEffect(() => {
-    fetch("http://192.168.1.106:80/compproject/get_flower.php", {
+    fetch("http://10.30.3.80/compproject/get_flower.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -42,13 +42,15 @@ const TabFlowers = () => {
     plantNickname,
     plantName,
     idealTemperature,
-    sunlight
+    sunlight,
+    frequency // Ensure frequency is passed here
   ) => {
     navigation.navigate("TrackingPage", {
       plantNickname: plantNickname,
       plantRealName: plantName,
       plantTemperature: idealTemperature,
       plantLight: sunlight,
+      frequency: frequency, // Ensure frequency is included here
     });
   };
 
@@ -75,7 +77,7 @@ const TabFlowers = () => {
         </TouchableOpacity>
       </View>
       <Text style={styles.title}>My Flowers</Text>
-      <Text>Nickname: {nickname}</Text>
+
       {flowers.map((flower, index) => (
         <TouchableOpacity
           key={index}
@@ -85,7 +87,8 @@ const TabFlowers = () => {
               flower.plant_nickname,
               flower.name,
               flower.ideal_temperature,
-              flower.sunlight
+              flower.sunlight,
+              flower.frequency // Ensure frequency is passed here
             )
           }
         >
@@ -97,7 +100,7 @@ const TabFlowers = () => {
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text1}>{flower.plant_nickname}</Text>
-            <Text style={styles.text2}>Last watered x days ago</Text>
+            <Text style={styles.text2}>{flower.frequency}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -139,16 +142,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flowersBox: {
-    backgroundColor: "#739072",
+    backgroundColor: "green",
   },
   vegetablesBox: {
     backgroundColor: "#739072",
   },
   fruitsBox: {
-    backgroundColor: "green",
-  },
-  flowersText: {
-    color: "white",
+    backgroundColor: "#739072",
   },
   boxText: {
     marginTop: 5,

@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import HomeScreen from "./HomeScreen";
 import MainPage from "./MainPage";
+
 import ExpertHomeScreen from "./ExpertHomeScreen";
 import EnthusiastHomeScreen from "./EnthusiastHomeScreen";
 import ExpertSignInScreen from "./ExpertSignInScreen";
@@ -16,7 +17,8 @@ import TabFlowers from "./TabFlowers";
 import Forum from "./Forum";
 import WelcomeScreen from "./WelcomeScreen";
 import TrackingPage from "./TrackingPage";
-import { MainProvider } from "./MainContext"; // Buraya ekledik
+import { MainProvider } from "./MainContext";
+import ProfilePage from "./ProfilePage"; // Buraya ekledik
 
 const Stack = createStackNavigator();
 

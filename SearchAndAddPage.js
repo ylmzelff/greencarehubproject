@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { AntDesign } from "@expo/vector-icons";
 import {
   View,
   Text,
@@ -7,6 +6,9 @@ import {
   TextInput,
   Alert,
   StyleSheet,
+  ImageBackground,
+  ScrollView,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -21,7 +23,7 @@ const SearchAndAddPage = ({ route }) => {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        "http://10.30.19.255:80/compproject/check_plant.php",
+        "http://192.168.1.110/compproject/check_plant.php",
         {
           method: "POST",
           headers: {
@@ -73,7 +75,7 @@ const SearchAndAddPage = ({ route }) => {
   const updateSearchCount = async (searchText) => {
     try {
       const response = await fetch(
-        "http://110.30.19.255:80/compproject/update_search_count.php",
+        "http://192.168.1.110/compproject/update_search_count.php",
         {
           method: "POST",
           headers: {
@@ -133,7 +135,7 @@ const SearchAndAddPage = ({ route }) => {
       };
 
       const response = await fetch(
-        "http://10.30.19.255:80/compproject/user_plants.php",
+        "http://192.168.1.110/compproject/user_plants.php",
         {
           method: "POST",
           headers: {
@@ -169,75 +171,216 @@ const SearchAndAddPage = ({ route }) => {
   };
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-      <Text>Search And Add Page</Text>
-      <View style={{ marginTop: 20 }}>
-        <Text style={styles.welcomeText}>
-          Hoş geldiniz, {nickname}! User Type: {userType}
-        </Text>
+    <ImageBackground source={require("./assets/try.jpg")} style={{ flex: 1 }}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <View style={{ marginTop: 20 }}>
+            <Text style={styles.welcomeText}></Text>
+            <Text style={[styles.inputLabel]}>Enter a plant name:</Text>
 
-        <Text>Enter a plant name:</Text>
-        <TextInput
-          style={{
-            borderWidth: 1,
-            borderColor: "#ccc",
-            borderRadius: 5,
-            padding: 8,
-            marginTop: 8,
-            width: 200,
-          }}
-          value={searchText}
-          onChangeText={(text) => setSearchText(text)}
-        />
-        <TouchableOpacity style={{ marginTop: 10 }} onPress={handleSearch}>
-          <Ionicons name="search" size={24} color="black" />
-        </TouchableOpacity>
-      </View>
-
-      {plantDetails && plantDetails.length > 0 && (
-        <View style={{ marginTop: 20 }}>
-          <Text>Plant Details:</Text>
-          {plantDetails.map((plant, index) => (
-            <View key={index} style={{ marginTop: 10 }}>
-              <Text>Name: {plant.name}</Text>
-              <Text>Category: {plant.category_name}</Text>
-              <Text>Ideal Temperature: {plant.ideal_temperature}</Text>
-              <Text>Lifespan: {plant.lifespan}</Text>
-              <Text>Soilcare: {plant.soilcare}</Text>
-              <Text>Sunlight: {plant.sunlight}</Text>
-              <Text>Planting Time: {plant.planting_time}</Text>
-              <Text>Water: {plant.water}</Text>
+            <View style={styles.inputContainer}>
+              <TextInput
+                style={styles.input}
+                value={searchText}
+                onChangeText={(text) => setSearchText(text)}
+              />
             </View>
-          ))}
-          <Text>Enter a nickname:</Text>
-          <TextInput
-            style={{
-              borderWidth: 1,
-              borderColor: "#ccc",
-              borderRadius: 5,
-              padding: 8,
-              marginTop: 8,
-              width: 200,
-            }}
-            value={nickText}
-            onChangeText={(text) => setNickText(text)}
-          />
-          <TouchableOpacity style={{ marginTop: 10 }} onPress={handleAddPlant}>
-            <Ionicons name="add" size={24} color="black" />
-          </TouchableOpacity>
-        </View>
-      )}
+            <TouchableOpacity
+              style={styles.searchButton}
+              onPress={handleSearch}
+            >
+              <Ionicons
+                name="search"
+                size={24}
+                color="black"
+                style={{ alignSelf: "center" }}
+              />
+            </TouchableOpacity>
+          </View>
 
-      {error && <Text style={{ color: "red", marginTop: 20 }}>{error}</Text>}
-    </View>
+          {plantDetails.length > 0 && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.inputLabel}>Plant Details:</Text>
+
+              <View style={styles.greenContainer}>
+                <View style={styles.upperContainer}>
+                  <View style={styles.upperLeftContainer}>
+                    <Text style={styles.text}>
+                      Plant Name: {plantDetails[0].name}
+                    </Text>
+                    <Text style={styles.text}>
+                      Category: {plantDetails[0].category_name}
+                    </Text>
+                  </View>
+                  <View style={styles.upperRightContainer}>
+                    <Text style={styles.text}>
+                      Ideal Temperature: {plantDetails[0].ideal_temperature}
+                    </Text>
+                    <Text style={styles.text}>
+                      Lifespan: {plantDetails[0].lifespan}
+                    </Text>
+                    <Text style={styles.text}>
+                      Soilcare: {plantDetails[0].soilcare}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.lowerContainer}>
+                  <View style={styles.lowerLeftContainer}>
+                    <Text style={styles.text}>
+                      Sunlight: {plantDetails[0].sunlight}
+                    </Text>
+                    <Text style={styles.text}>
+                      Planting Time: {plantDetails[0].planting_time}
+                    </Text>
+                    <Text style={styles.text}>
+                      Water: {plantDetails[0].water}
+                    </Text>
+                  </View>
+                  <View style={styles.lowerRightContainer}>
+                    <Image
+                      source={{ uri: "https://example.com/image.jpg" }} // fotoğrafı buraya eklenecek
+                      style={{ width: 100, height: 100 }}
+                    />
+                  </View>
+                </View>
+              </View>
+              <TextInput
+                style={styles.input}
+                value={nickText} // nickText değerini TextInput'a atayın
+                onChangeText={(text) => setNickText(text)} // Kullanıcının girdiği metni nickText state'ine kaydedin
+              />
+
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAddPlant}
+              >
+                <Text style={styles.buttonText}>Add Plant</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+          {error && <Text style={styles.errorText}>{error}</Text>}
+        </View>
+      </ScrollView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
   welcomeText: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: "bold",
     marginBottom: 10,
   },
+  inputLabel: {
+    fontSize: 15, // Yazı boyutunu artırma
+    fontWeight: "bold", // Kalınlığı bold yapma
+  },
+  buttonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  inputContainer: {
+    backgroundColor: "white",
+    opacity: 0.8,
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginBottom: 5,
+  },
+  nicknameInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "white",
+    opacity: 0.8,
+    borderRadius: 5,
+    paddingVertical: 5,
+    paddingHorizontal: 5,
+    marginBottom: 5,
+    width: 210,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 5,
+    padding: 8,
+    width: 200,
+  },
+  addButton: {
+    marginTop: 10,
+    backgroundColor: "#7C9070",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    width: 215, // Genişliği artırabilir veya düzenleyebilirsiniz
+    height: 40, // Yüksekliği artırabilir veya düzenleyebilirsiniz
+  },
+  searchButton: {
+    marginTop: 10,
+    backgroundColor: "#7C9070",
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    width: 215, // Genişliği artırabilir veya düzenleyebilirsiniz
+    height: 40, // Yüksekliği artırabilir veya düzenleyebilirsiniz
+  },
+
+  greenContainer: {
+    backgroundColor: "white",
+    height: 400,
+    width: 300,
+    marginHorizontal: 20,
+    marginTop: 20,
+    opacity: 0.8,
+    borderRadius: 20,
+  },
+  upperContainer: {
+    flexDirection: "row",
+    flex: 1,
+    paddingRight: 10,
+    paddingTop: 10,
+    paddingLeft: 10,
+  },
+  lowerContainer: {
+    flexDirection: "row",
+    flex: 1,
+    paddingLeft: 10,
+    paddingBottom: 10,
+    paddingRight: 10,
+  },
+  upperLeftContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "flex-start",
+  },
+  upperRightContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "flex-start",
+    backgroundColor: "#FEE8B0",
+  },
+  lowerLeftContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "flex-end",
+    backgroundColor: "#9CA777",
+  },
+  lowerRightContainer: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
+  text: {
+    color: "black",
+    fontWeight: "bold",
+  },
+  errorText: {
+    color: "red",
+    marginTop: 20,
+  },
 });
+
 export default SearchAndAddPage;

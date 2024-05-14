@@ -6,16 +6,16 @@ import { MainContext } from "./MainContext";
 
 const TabVegetables = () => {
   const { nickname } = useContext(MainContext);
-  // props olarak nickname al
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
     navigation.navigate("SearchAndAdd");
   };
+
   const [vegetables, setVegetables] = useState([]);
 
   useEffect(() => {
-    fetch("http://192.168.1.106:80/compproject/get_vegetable.php", {
+    fetch("http://10.30.3.80/compproject/get_vegetable.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -36,33 +36,48 @@ const TabVegetables = () => {
         console.error(error);
         console.error("Error fetching data for nickname:", nickname);
       });
-  }, []);
+  }, [nickname]);
 
   const handleTrackingPage = (
     plantNickname,
     plantName,
     idealTemperature,
-    sunlight
+    sunlight,
+    frequency
   ) => {
     navigation.navigate("TrackingPage", {
       plantNickname: plantNickname,
       plantRealName: plantName,
       plantTemperature: idealTemperature,
       plantLight: sunlight,
+      frequency: frequency,
     });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.boxContainer}>
-        <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
-
-        <Text style={styles.boxText}>Vegetables</Text>
-
-        <Text style={styles.boxText}>Fruits</Text>
+        <TouchableOpacity
+          style={[styles.box, styles.flowersBox]}
+          onPress={() => navigation.navigate("TabFlowers")}
+        >
+          <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.box, styles.vegetablesBox]}
+          onPress={() => navigation.navigate("TabVegetables")}
+        >
+          <Text style={styles.boxText}>Vegetables</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.box, styles.fruitsBox]}
+          onPress={() => navigation.navigate("TabFruits")}
+        >
+          <Text style={styles.boxText}>Fruits</Text>
+        </TouchableOpacity>
       </View>
       <Text style={styles.title}>My Vegetables</Text>
-      <Text>Nickname: {nickname}</Text>
+
       {vegetables.map((vegetable, index) => (
         <TouchableOpacity
           key={index}
@@ -72,22 +87,24 @@ const TabVegetables = () => {
               vegetable.plant_nickname,
               vegetable.name,
               vegetable.ideal_temperature,
-              vegetable.sunlight
+              vegetable.sunlight,
+              vegetable.frequency // Ensure frequency is passed here
             )
           }
         >
           <View style={styles.imageContainer}>
             <Image
-              //source={{ uri: vegetable.image_url }} // varsayılan bir resim yolu ekleyin
+              // source={{ uri: vegetable.image_url }} // Add a default image source if available
               style={{ width: 120, height: 100, resizeMode: "contain" }}
             />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text1}>{vegetable.plant_nickname}</Text>
-            <Text style={styles.text2}>Last watered x days ago</Text>
+            <Text style={styles.text2}>{vegetable.frequency}</Text>
           </View>
         </TouchableOpacity>
       ))}
+
       <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
         <AntDesign name="pluscircle" size={50} color="black" />
       </TouchableOpacity>
@@ -101,16 +118,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
-  welcomeText: {
-    fontSize: 24,
-    fontWeight: "bold",
-    marginTop: 20,
-  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    marginTop: 20,
+    marginTop: 100,
   },
   boxContainer: {
     flexDirection: "row",
@@ -133,12 +145,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#739072",
   },
   vegetablesBox: {
-    backgroundColor: "#739072",
-  },
-  fruitsBox: {
     backgroundColor: "green",
   },
-  fruitsText: {
+  fruitsBox: {
+    backgroundColor: "#739072",
+  },
+  flowersText: {
     color: "white",
   },
   boxText: {

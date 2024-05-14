@@ -2,7 +2,8 @@ import React from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import SearchAndAddPage from "./SearchAndAddPage"; // Adjust the path accordingly
+import SearchAndAddPage from "./SearchAndAddPage"; // Adjust the path
+import ProfilePage from "./ProfilePage";
 import Forum from "./Forum";
 import Swiper from "react-native-swiper";
 import TabVegetables from "./TabVegetables";
@@ -23,10 +24,6 @@ const MainPage = ({ route }) => {
   setNickname(nickname);
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>
-        Hoş geldiniz, {nickname}! User Type: {userType}
-      </Text>
-
       <Swiper style={styles.wrapper} showsButtons={false}>
         <TabVegetables />
         <TabFruits />
@@ -56,6 +53,11 @@ const BottomTabNavigator = ({ route }) => {
       <Tab.Screen
         name="Home"
         component={MainPage}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="home" size={size} color={color} />
+          ),
+        }}
         initialParams={{ nickname: nickname, userType: userType }}
       />
 
@@ -75,6 +77,16 @@ const BottomTabNavigator = ({ route }) => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="hearto" size={size} color={color} />
+          ),
+        }}
+        initialParams={{ nickname: nickname, userType: userType }}
+      />
+      <Tab.Screen
+        name="Profile"
+        component={ProfilePage}
+        options={{
+          tabBarIcon: ({ color, size }) => (
+            <AntDesign name="profile" size={size} color={color} />
           ),
         }}
         initialParams={{ nickname: nickname, userType: userType }}

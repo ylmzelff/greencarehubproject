@@ -13,8 +13,9 @@ const TabFruits = () => {
   };
 
   const [fruits, setFruits] = useState([]);
+
   useEffect(() => {
-    fetch("http://192.168.1.106:80/compproject/get_fruit.php", {
+    fetch("http://10.30.3.80/compproject/get_fruit.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -41,27 +42,42 @@ const TabFruits = () => {
     plantNickname,
     plantName,
     idealTemperature,
-    sunlight
+    sunlight,
+    frequency
   ) => {
     navigation.navigate("TrackingPage", {
       plantNickname: plantNickname,
       plantRealName: plantName,
       plantTemperature: idealTemperature,
       plantLight: sunlight,
+      frequency: frequency,
     });
   };
 
   return (
     <View style={styles.container}>
       <View style={styles.boxContainer}>
-        <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
-
-        <Text style={styles.boxText}>Vegetables</Text>
-
-        <Text style={styles.boxText}>Fruits</Text>
+        <TouchableOpacity
+          style={[styles.box, styles.flowersBox]}
+          onPress={() => navigation.navigate("TabFlowers")}
+        >
+          <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.box, styles.vegetablesBox]}
+          onPress={() => navigation.navigate("TabVegetables")}
+        >
+          <Text style={styles.boxText}>Vegetables</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.box, styles.fruitsBox]}
+          onPress={() => navigation.navigate("TabFruits")}
+        >
+          <Text style={[styles.boxText, styles.fruitsText]}>Fruits</Text>
+        </TouchableOpacity>
       </View>
       <Text style={styles.title}>My Fruits</Text>
-      <Text>Nickname: {nickname}</Text>
+
       {fruits.map((fruit, index) => (
         <TouchableOpacity
           key={index}
@@ -71,7 +87,8 @@ const TabFruits = () => {
               fruit.plant_nickname,
               fruit.name,
               fruit.ideal_temperature,
-              fruit.sunlight
+              fruit.sunlight,
+              fruit.frequency // Ensure frequency is passed here
             )
           }
         >
@@ -83,10 +100,11 @@ const TabFruits = () => {
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text1}>{fruit.plant_nickname}</Text>
-            <Text style={styles.text2}>Last watered x days ago</Text>
+            <Text style={styles.text2}>{fruit.frequency}</Text>
           </View>
         </TouchableOpacity>
       ))}
+
       <TouchableOpacity style={styles.addButton} onPress={handleAddButtonPress}>
         <AntDesign name="pluscircle" size={50} color="black" />
       </TouchableOpacity>

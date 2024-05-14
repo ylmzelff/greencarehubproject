@@ -1,4 +1,3 @@
-// MainContext.js
 import React, { createContext, useState } from "react";
 
 export const MainContext = createContext();

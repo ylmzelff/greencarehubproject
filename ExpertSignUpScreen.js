@@ -31,7 +31,7 @@ export default class ExpertSignUpScreen extends Component {
     ) {
       alert("Required Field is missing!");
     } else {
-      var InsertAPIURL = "http://192.168.1.106:80/compproject/insert.php";
+      var InsertAPIURL = "http://192.168.1.110/compproject/insert.php";
       var headers = {
         Accept: "application/json",
         "Content-Type": "application/json",

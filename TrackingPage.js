@@ -1,40 +1,77 @@
 import React, { useState } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
-import { AntDesign } from "@expo/vector-icons";
+import { Calendar } from "react-native-calendars";
 
 const TrackingPage = ({ route }) => {
-  const { plantNickname, plantRealName, plantTemperature, plantLight } =
-    route.params;
+  const {
+    plantNickname,
+    plantRealName,
+    plantTemperature,
+    plantLight,
+    frequency,
+  } = route.params;
 
-  const [wateringDates, setWateringDates] = useState([
-    { date: "2024-04-10", completed: true },
-    { date: "2024-04-08", completed: false },
-    { date: "2024-04-06", completed: true },
-    // Buraya daha fazla sulama tarihi ekleyebilirsiniz
-  ]);
+  const [wateringDates, setWateringDates] = useState([]);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(null);
+
+  // Function to convert frequency string to number
+  const getFrequencyNumber = (frequency) => {
+    switch (frequency.toLowerCase()) {
+      case "once a week":
+        return 1;
+      case "twice per week":
+        return 2;
+      case "three times a week":
+        return 3;
+      case "four times a week":
+        return 4;
+      default:
+        return 1; // Default to once a week if frequency is unrecognized
+    }
+  };
+
+  // Function to calculate next watering dates based on frequency
+  const calculateNextWateringDates = (selectedDate, frequency) => {
+    const nextDates = [];
+    let currentDate = new Date(selectedDate);
+    const frequencyNumber = getFrequencyNumber(frequency);
+    const daysBetweenWaterings = Math.floor(7 / frequencyNumber);
+
+    for (let i = 0; i < 10; i++) {
+      nextDates.push(new Date(currentDate));
+      currentDate.setDate(currentDate.getDate() + daysBetweenWaterings);
+    }
+
+    return nextDates;
+  };
+
+  const handleAddMultipleWateringDates = (date) => {
+    const nextWateringDates = calculateNextWateringDates(date, frequency);
+    setWateringDates(
+      nextWateringDates.map((date) => ({ date, completed: false }))
+    );
+    setShowCalendar(false);
+  };
 
   const toggleWatering = (index) => {
-    const updatedDates = [...wateringDates];
-    updatedDates[index].completed = !updatedDates[index].completed;
-    setWateringDates(updatedDates);
-
-    // Sulama tarihini kaydetmek için API isteği gönder
-    //saveWateringDate(updatedDates[index].date);
+    const updatedWateringDates = [...wateringDates];
+    updatedWateringDates[index].completed = true;
+    setWateringDates(updatedWateringDates);
   };
+
+  // Find the next incomplete watering date
+  const nextIncompleteWateringDate = wateringDates.find(
+    (date) => !date.completed
+  );
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("./assets/m.jpg")}
-        style={styles.basicbackground}
-      />
       <View style={styles.greenContainer}>
         <View style={styles.textContainer}>
           <Text style={styles.text1}>{plantNickname}</Text>
           <Text style={styles.text2}>{plantRealName}</Text>
-          <View style={styles.lastWateringContainer}>
-            <Text style={styles.lastWateringText}>Last watered x day ago</Text>
-          </View>
+          <Text style={styles.text2}>Frequency: {frequency}</Text>
         </View>
         <View style={styles.imageContainer}>
           <Image
@@ -45,7 +82,7 @@ const TrackingPage = ({ route }) => {
       </View>
       <View style={styles.circleContainer}>
         <View style={styles.wateringCircle}>
-          <Text style={styles.wateringCircleText}>x days</Text>
+          <Text style={styles.wateringCircleText}>Next Watering</Text>
         </View>
         <View style={styles.TemperatureCircle}>
           <Text style={styles.TemperatureCircleText}>
@@ -56,35 +93,52 @@ const TrackingPage = ({ route }) => {
           <Text style={styles.lightCircleText}>{plantLight}</Text>
         </View>
       </View>
-
       <View style={styles.circleInfoContainer}>
         <View style={styles.info1Circle}>
-          <Text style={styles.info1Text}>next watering</Text>
+          <Text style={styles.info1Text}>Next Watering</Text>
         </View>
         <View style={styles.info2Circle}>
-          <Text style={styles.info2Text}>ideal temperature</Text>
+          <Text style={styles.info2Text}>Ideal Temperature</Text>
         </View>
         <View style={styles.info3Circle}>
-          <Text style={styles.info3Text}>sun exposure</Text>
+          <Text style={styles.info3Text}>Sun Exposure</Text>
         </View>
       </View>
-
-      <Text style={styles.title}> Irrigation Tracking List</Text>
-      {wateringDates.map((item, index) => (
+      <TouchableOpacity
+        style={styles.selectDateButton}
+        onPress={() => setShowCalendar(true)}
+      >
+        <Text style={styles.selectDateButtonText}>
+          Select the First Watering Date
+        </Text>
+      </TouchableOpacity>
+      {showCalendar && (
+        <Calendar
+          onDayPress={(day) => {
+            handleAddMultipleWateringDates(day.dateString);
+            setSelectedDate(day.dateString);
+          }}
+        />
+      )}
+      <Text>
+        Selected Date: {selectedDate ? selectedDate : "No date selected"}
+      </Text>
+      <Text style={styles.title}>Next Watering Dates</Text>
+      {nextIncompleteWateringDate ? (
         <TouchableOpacity
-          key={index}
-          style={[
-            styles.dateItem,
-            { backgroundColor: item.completed ? "#FFE6E6" : "white" },
-          ]}
-          onPress={() => toggleWatering(index)}
+          style={[styles.dateItem, { backgroundColor: "#FFE6E6" }]}
+          onPress={() =>
+            toggleWatering(wateringDates.indexOf(nextIncompleteWateringDate))
+          }
         >
-          <Text style={styles.dateText}>{item.date}</Text>
-          {item.completed && (
-            <Text style={styles.completedText}> Completed</Text>
-          )}
+          <Text style={styles.dateText}>
+            {nextIncompleteWateringDate.date.toLocaleDateString()}
+          </Text>
+          <Text style={styles.completedText}> Next</Text>
         </TouchableOpacity>
-      ))}
+      ) : (
+        <Text>No more upcoming watering dates</Text>
+      )}
     </View>
   );
 };
@@ -93,18 +147,11 @@ const styles = StyleSheet.create({
   container: {
     alignItems: "center",
     justifyContent: "flex-start",
-    position: "relative",
-  },
-  basicbackground: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
+    flex: 1,
+    backgroundColor: "white",
   },
   greenContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)", // Koyu beyaz ve %70 şeffaflık
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     width: "100%",
     height: "40%",
     borderBottomLeftRadius: 55,
@@ -113,7 +160,6 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 20,
   },
-
   textContainer: {
     justifyContent: "center",
     height: "100%",
@@ -136,18 +182,6 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "bold",
     color: "black",
-  },
-  lastWateringContainer: {
-    justifyContent: "center",
-    backgroundColor: "#AFD198",
-    marginTop: 10,
-    borderRadius: 60,
-    paddingHorizontal: 10,
-  },
-  lastWateringText: {
-    fontSize: 15,
-    color: "white",
-    fontWeight: "bold",
   },
   circleContainer: {
     flexDirection: "row",
@@ -230,6 +264,17 @@ const styles = StyleSheet.create({
   info3Text: {
     fontSize: 13,
     color: "black",
+    fontWeight: "bold",
+  },
+  selectDateButton: {
+    backgroundColor: "#AFD198",
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 20,
+  },
+  selectDateButtonText: {
+    fontSize: 16,
+    color: "white",
     fontWeight: "bold",
   },
   title: {

@@ -8,10 +8,9 @@ import {
   TextInput,
   Image,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import { AntDesign } from "@expo/vector-icons";
 
 const Forum = ({ route }) => {
   const { nickname, userType } = route.params;
@@ -44,7 +43,7 @@ const Forum = ({ route }) => {
   const handleAddTweet = () => {
     if (newTweetText.trim() !== "") {
       axios
-        .post("http://192.168.1.106:80/compproject/entquestion.php", {
+        .post("http://192.168.1.110/compproject/entquestion.php", {
           nickname: nickname,
           question_text: newTweetText.trim(),
           userType: userType,
@@ -89,7 +88,7 @@ const Forum = ({ route }) => {
   const handleAddComment = () => {
     if (commentText.trim() !== "") {
       axios
-        .post("http://192.168.1.106:80/compproject/add_comments.php", {
+        .post("http://192.168.1.110/compproject/add_comments.php", {
           tweetId: commentingTweetId,
           nickname: nickname,
           commentText: commentText.trim(),
@@ -132,7 +131,12 @@ const Forum = ({ route }) => {
           <View style={styles.tweetContainer}>
             <View style={styles.avatar}></View>
             <View style={styles.tweetContent}>
-              <Text style={styles.nickname}>{route.params.nickname}</Text>
+              <Text style={styles.nickname}>
+                {route.params.nickname}{" "}
+                {userType === "expert" && (
+                  <AntDesign name="checkcircle" size={16} color="green" />
+                )}
+              </Text>
 
               <Text style={styles.tweetText}>{item.text}</Text>
               {item.image && (
@@ -184,7 +188,11 @@ const Forum = ({ route }) => {
               {item.comments.map((comment, index) => (
                 <View key={index} style={styles.commentBox}>
                   <Text style={styles.commentText}>
-                    {comment.nickname}: {comment.text}
+                    {comment.nickname}{" "}
+                    {userType === "expert" && (
+                      <AntDesign name="checkcircle" size={16} color="green" />
+                    )}
+                    : {comment.text}
                   </Text>
                 </View>
               ))}
