@@ -130,13 +130,14 @@ const Forum = ({ route }) => {
         })
         .then((response) => {
           console.log("Comment added:", response.data);
+          // Yeni yorumun veri yapısına eklenmesi
           const updatedTweets = tweets.map((tweet) =>
             tweet.id === commentingTweetId
               ? {
                   ...tweet,
                   comments: [
                     ...tweet.comments,
-                    { nickname, text: commentText.trim(), userType },
+                    { nickname, comment_text: commentText.trim(), userType },
                   ],
                 }
               : tweet
@@ -150,103 +151,145 @@ const Forum = ({ route }) => {
         });
     }
   };
+  const fetchComments = (questionId) => {
+    axios
+      .post("http://192.168.1.110/compproject/get_all_comments.php", {
+        question_id: questionId,
+      })
+      .then((response) => {
+        console.log("Comments fetched:", response.data);
+        const updatedTweets = tweets.map((tweet) =>
+          tweet.id === questionId
+            ? { ...tweet, comments: response.data }
+            : tweet
+        );
+        setTweets(updatedTweets);
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
 
   return (
     <View style={styles.container}>
-      <Image
-        source={require("./assets/forum.jpg")}
-        style={styles.backgroundImage}
-      />
+      <View style={styles.backgroundImage}>
+        <Image
+          source={require("./assets/forum.jpg")}
+          style={StyleSheet.absoluteFillObject}
+          resizeMode="cover"
+        />
+      </View>
 
       <FlatList
         data={tweets}
-        renderItem={({ item }) => (
-          <View style={styles.tweetContainer}>
-            <View style={styles.avatar}></View>
-            <View style={styles.tweetContent}>
-              <Text style={styles.nickname}>
-                {item.nickname}{" "}
-                {item.userType === "expert" && (
-                  <AntDesign name="checkcircle" size={16} color="green" />
+        renderItem={({ item }) => {
+          if (!item) {
+            return null; // Avoid rendering if item is undefined
+          }
+
+          return (
+            <View style={styles.tweetContainer}>
+              <View style={styles.avatar}></View>
+              <View style={styles.tweetContent}>
+                <Text style={styles.nickname}>
+                  {item.nickname || "Unknown"}{" "}
+                  {item.userType === "expert" && (
+                    <AntDesign name="checkcircle" size={16} color="green" />
+                  )}
+                </Text>
+
+                <Text style={styles.tweetText}>
+                  Question ID: {item.question_id} - {item.question_text}
+                </Text>
+
+                {item.image && (
+                  <Image
+                    source={{ uri: item.image }}
+                    style={styles.tweetImage}
+                  />
                 )}
-              </Text>
-
-              <Text style={styles.tweetText}>
-                Question ID: {item.question_id} - {item.question_text}
-              </Text>
-
-              {item.image && (
-                <Image source={{ uri: item.image }} style={styles.tweetImage} />
-              )}
-              <View style={styles.actionsContainer}>
-                <TouchableOpacity
-                  onPress={() => handleLike(item.id)}
-                  style={styles.actionButton}
-                >
-                  <Ionicons
-                    name={item.liked ? "heart" : "heart-outline"}
-                    size={20}
-                    color={item.liked ? "pink" : "#657786"}
-                  />
-                  <Text style={styles.actionButtonText}>{item.likes}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={() => handleComment(item.id)}
-                  style={styles.actionButton}
-                >
-                  <Ionicons
-                    name="chatbubble-outline"
-                    size={20}
-                    color="#657786"
-                  />
-
-                  <Text style={styles.actionButtonText}>Comment</Text>
-                </TouchableOpacity>
-              </View>
-              {item.id === showCommentsForTweetId && (
-                <View style={styles.commentContainer}>
-                  <TextInput
-                    style={styles.commentInput}
-                    placeholder="Add a comment..."
-                    value={commentText}
-                    onChangeText={(text) => setCommentText(text)}
-                  />
+                <View style={styles.actionsContainer}>
                   <TouchableOpacity
-                    onPress={handleAddComment}
-                    style={styles.addButton}
+                    onPress={() => handleLike(item.id)}
+                    style={styles.actionButton}
                   >
-                    <Text style={styles.addButtonText}>Add</Text>
+                    <Ionicons
+                      name={item.liked ? "heart" : "heart-outline"}
+                      size={20}
+                      color={item.liked ? "pink" : "#657786"}
+                    />
+                    <Text style={styles.actionButtonText}>{item.likes}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => {
+                      handleComment(item.id);
+                      fetchComments(item.id);
+                    }}
+                    style={styles.actionButton}
+                  >
+                    <Ionicons
+                      name="chatbubble-outline"
+                      size={20}
+                      color="#657786"
+                    />
+
+                    <Text style={styles.actionButtonText}>add</Text>
                   </TouchableOpacity>
                 </View>
-              )}
-
-              {item.comments &&
-                item.comments.map((comment, index) => (
-                  <View key={index} style={styles.commentBox}>
-                    <Text style={styles.commentText}>
-                      {comment.nickname}{" "}
-                      {comment.userType === "expert" && (
-                        <AntDesign name="checkcircle" size={16} color="green" />
-                      )}
-                      : {comment.text}
-                    </Text>
+                {item.id === showCommentsForTweetId && (
+                  <View style={styles.commentContainer}>
+                    <TextInput
+                      style={styles.commentInput}
+                      placeholder="Add a comment..."
+                      value={commentText}
+                      onChangeText={(text) => setCommentText(text)}
+                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        handleAddComment();
+                        // Hide the comments section after adding a comment
+                      }}
+                      style={styles.addButton}
+                    >
+                      <Text style={styles.addButtonText}>Add</Text>
+                    </TouchableOpacity>
                   </View>
-                ))}
-            </View>
-          </View>
-        )}
-        keyExtractor={(item) => item.id}
-      />
+                )}
 
-      <View style={styles.addTweetContainer}>
+                {item.id === showCommentsForTweetId &&
+                  Array.isArray(item.comments) &&
+                  item.comments.map((comment, index) => (
+                    <View key={index} style={styles.commentBox}>
+                      <Text style={[styles.commentText, { color: "black" }]}>
+                        {comment.nickname || "Unknown"}{" "}
+                        {comment.userType === "expert" && (
+                          <AntDesign
+                            name="checkcircle"
+                            size={16}
+                            color="green"
+                            style={{ marginLeft: 5 }} // Yeşil işaretin sol boşluğunu ayarla
+                          />
+                        )}
+                        : {comment.comment_text}
+                      </Text>
+                    </View>
+                  ))}
+              </View>
+            </View>
+          );
+        }}
+        keyExtractor={(item) => item.id}
+        contentContainerStyle={styles.tweetList}
+      />
+      <View style={styles.inputContainer}>
         <TextInput
           style={styles.input}
-          placeholder="Add..."
+          placeholder="What's happening?"
           value={newTweetText}
           onChangeText={(text) => setNewTweetText(text)}
         />
         <TouchableOpacity onPress={handleAddTweet} style={styles.addButton}>
-          <Ionicons name="add" size={24} color="#fff" />
+          <Text style={styles.addButtonText}>Add</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -256,129 +299,126 @@ const Forum = ({ route }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F2DE",
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 70,
-    right: 30,
-  },
-  goBackButton: {
-    marginRight: 8,
-  },
-  goBackButtonText: {
-    color: "#1DA1F2",
-    fontSize: 16,
-  },
-  headerLeftContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-  },
-  nickname: {
-    fontWeight: "bold",
-    marginBottom: 4,
-  },
-
-  backgroundImage: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    resizeMode: "cover",
-    opacity: 0.6,
+    padding: 16,
+    backgroundColor: "white",
   },
   tweetContainer: {
-    flex: 1,
-    borderWidth: 1.5,
-    borderColor: "#DAC0A3",
-    borderRadius: 10,
-    marginRight: 6,
-    marginLeft: 6,
-    marginTop: 10,
-    marginBottom: 10,
     flexDirection: "row",
-    alignItems: "flex-start",
+    marginBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: "#e1e8ed",
+    paddingBottom: 8,
+  },
+  commentText: {
+    color: "black", // Yorum yazısının rengi siyah olacak
   },
   avatar: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginRight: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: "#ccc",
+    marginRight: 12,
   },
   tweetContent: {
     flex: 1,
   },
-  tweetText: {
+  nickname: {
+    fontWeight: "bold",
     fontSize: 16,
-    marginBottom: 8,
+  },
+  tweetText: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#333",
   },
   tweetImage: {
     width: "100%",
     height: 200,
     borderRadius: 8,
-    marginBottom: 8,
+    marginTop: 8,
   },
   actionsContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
+    marginTop: 8,
   },
   actionButton: {
     flexDirection: "row",
     alignItems: "center",
+    marginRight: 16,
   },
   actionButtonText: {
     marginLeft: 4,
     color: "#657786",
   },
   commentContainer: {
+    marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 8,
   },
   commentInput: {
     flex: 1,
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderColor: "#739072",
-    borderRadius: 10,
-    padding: 8,
-    marginRight: 6,
-    marginTop: 4,
-    marginBottom: 6,
+    borderRadius: 20,
+    paddingLeft: 16,
+    paddingRight: 16,
+    marginRight: 8,
   },
   addButton: {
-    backgroundColor: "#739072",
-    borderRadius: 10,
-    padding: 8,
+    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    borderRadius: 20,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   addButtonText: {
-    color: "#fff",
+    color: "white",
   },
   commentBox: {
-    backgroundColor: "#DAC0A3",
-    borderRadius: 10,
+    backgroundColor: "#f5f8fa",
     padding: 8,
-    marginRight: 6,
-    marginTop: 4,
-    marginBottom: 6,
+    borderRadius: 8,
+    marginTop: 8,
   },
   commentText: {
     color: "#333",
   },
-  addTweetContainer: {
+  inputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
     borderTopWidth: 1,
-    borderTopColor: "#AF8260",
-    backgroundColor: "rgba(255, 255, 255, 0.5)",
-    borderRadius: 10,
+    borderTopColor: "#e1e8ed",
   },
   input: {
     flex: 1,
+    height: 40,
+    borderColor: "#ccc",
     borderWidth: 1,
-    borderColor: "#739072",
-    borderRadius: 4,
-    padding: 8,
-    marginRight: 8,
+    borderRadius: 20,
+    paddingLeft: 16,
+    paddingRight: 16,
+  },
+  searchAddButton: {
+    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    borderRadius: 20,
+    padding: 16,
+    alignItems: "center",
+    marginTop: 16,
+  },
+  searchAddButtonText: {
+    color: "white",
+    fontSize: 16,
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    opacity: 0.1,
+    zIndex: -1,
   },
 });
 
