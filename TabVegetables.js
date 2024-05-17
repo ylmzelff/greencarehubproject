@@ -9,13 +9,12 @@ const TabVegetables = () => {
   const navigation = useNavigation();
 
   const handleAddButtonPress = () => {
-    navigation.navigate("SearchAndAdd");
+    navigation.navigate("FavoritePlants");
   };
-
   const [vegetables, setVegetables] = useState([]);
 
   useEffect(() => {
-    fetch("http://10.30.3.80/compproject/get_vegetable.php", {
+    fetch("http://192.168.1.110/compproject/get_vegetable.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -36,19 +35,19 @@ const TabVegetables = () => {
         console.error(error);
         console.error("Error fetching data for nickname:", nickname);
       });
-  }, [nickname]);
+  }, []); // nickname bağımlılığını ekleyin
 
   const handleTrackingPage = (
     plantNickname,
     plantName,
-    idealTemperature,
+    ideal_temperature,
     sunlight,
     frequency
   ) => {
     navigation.navigate("TrackingPage", {
       plantNickname: plantNickname,
       plantRealName: plantName,
-      plantTemperature: idealTemperature,
+      plantTemperature: ideal_temperature,
       plantLight: sunlight,
       frequency: frequency,
     });
@@ -88,19 +87,17 @@ const TabVegetables = () => {
               vegetable.name,
               vegetable.ideal_temperature,
               vegetable.sunlight,
-              vegetable.frequency // Ensure frequency is passed here
+              vegetable.frequency
             )
           }
         >
           <View style={styles.imageContainer}>
-            <Image
-              // source={{ uri: vegetable.image_url }} // Add a default image source if available
-              style={{ width: 120, height: 100, resizeMode: "contain" }}
-            />
+            <Image style={{ width: 120, height: 100, resizeMode: "contain" }} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text1}>{vegetable.plant_nickname}</Text>
             <Text style={styles.text2}>{vegetable.frequency}</Text>
+            <Text style={styles.text2}>{vegetable.ideal_temperature}</Text>
           </View>
         </TouchableOpacity>
       ))}

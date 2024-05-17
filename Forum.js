@@ -18,6 +18,7 @@ const Forum = ({ route }) => {
   const [newTweetText, setNewTweetText] = useState("");
   const [commentText, setCommentText] = useState("");
   const [commentingTweetId, setCommentingTweetId] = useState("");
+  const [showCommentsForTweetId, setShowCommentsForTweetId] = useState("");
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -36,6 +37,35 @@ const Forum = ({ route }) => {
     });
   }, [navigation]);
 
+  useEffect(() => {
+    fetchQuestions();
+  }, []);
+
+  const fetchQuestions = () => {
+    axios
+      .get("http://192.168.1.110/compproject/get_all_questions.php")
+      .then((response) => {
+        if (response.data && Array.isArray(response.data)) {
+          const data = response.data.map((item) => ({
+            ...item,
+            id: item.question_id,
+            comments: [],
+          }));
+          console.log("Fetched data:", data);
+          setTweets(data);
+        } else {
+          console.error("Error: Invalid data format");
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleToggleComments = (tweetId) => {
+    setShowCommentsForTweetId((prevId) => (prevId === tweetId ? "" : tweetId));
+  };
+
   const handleAddButtonPress = () => {
     navigation.navigate("SearchAndAdd");
   };
@@ -44,15 +74,15 @@ const Forum = ({ route }) => {
     if (newTweetText.trim() !== "") {
       axios
         .post("http://192.168.1.110/compproject/entquestion.php", {
-          nickname: nickname,
+          nickname,
           question_text: newTweetText.trim(),
-          userType: userType,
+          userType,
         })
         .then((response) => {
-          console.log("Soru gönderildi:", response.data);
+          console.log("Question submitted:", response.data);
           const newTweet = {
             id: Date.now().toString(),
-            text: newTweetText.trim(),
+            question_text: newTweetText.trim(),
             image: null,
             liked: false,
             likes: 0,
@@ -62,15 +92,15 @@ const Forum = ({ route }) => {
           setNewTweetText("");
         })
         .catch((error) => {
-          console.error("Hata oluştu:", error);
+          console.error("Error:", error);
         });
     }
   };
 
-  const handleLike = (tweetId) => {
+  const handleLike = (questionId) => {
     setTweets((prevTweets) =>
       prevTweets.map((tweet) =>
-        tweet.id === tweetId
+        tweet.id === questionId
           ? {
               ...tweet,
               liked: !tweet.liked,
@@ -81,29 +111,32 @@ const Forum = ({ route }) => {
     );
   };
 
-  const handleComment = (tweetId) => {
-    setCommentingTweetId(tweetId);
+  const handleComment = (questionId) => {
+    setShowCommentsForTweetId((prevId) =>
+      prevId === questionId ? "" : questionId
+    );
+    setCommentingTweetId((prevId) => (prevId === questionId ? "" : questionId));
+    setCommentText("");
   };
 
   const handleAddComment = () => {
     if (commentText.trim() !== "") {
       axios
         .post("http://192.168.1.110/compproject/add_comments.php", {
-          tweetId: commentingTweetId,
-          nickname: nickname,
-          commentText: commentText.trim(),
-          userType: userType,
-          comment_text: commentText,
+          question_id: commentingTweetId,
+          nickname,
+          comment_text: commentText.trim(),
+          userType,
         })
         .then((response) => {
-          console.log("Yorum eklendi:", response.data);
+          console.log("Comment added:", response.data);
           const updatedTweets = tweets.map((tweet) =>
             tweet.id === commentingTweetId
               ? {
                   ...tweet,
                   comments: [
                     ...tweet.comments,
-                    { nickname, text: commentText.trim() },
+                    { nickname, text: commentText.trim(), userType },
                   ],
                 }
               : tweet
@@ -113,7 +146,7 @@ const Forum = ({ route }) => {
           setCommentingTweetId("");
         })
         .catch((error) => {
-          console.error("Hata oluştu:", error);
+          console.error("Error:", error);
         });
     }
   };
@@ -132,13 +165,16 @@ const Forum = ({ route }) => {
             <View style={styles.avatar}></View>
             <View style={styles.tweetContent}>
               <Text style={styles.nickname}>
-                {route.params.nickname}{" "}
-                {userType === "expert" && (
+                {item.nickname}{" "}
+                {item.userType === "expert" && (
                   <AntDesign name="checkcircle" size={16} color="green" />
                 )}
               </Text>
 
-              <Text style={styles.tweetText}>{item.text}</Text>
+              <Text style={styles.tweetText}>
+                Question ID: {item.question_id} - {item.question_text}
+              </Text>
+
               {item.image && (
                 <Image source={{ uri: item.image }} style={styles.tweetImage} />
               )}
@@ -163,12 +199,11 @@ const Forum = ({ route }) => {
                     size={20}
                     color="#657786"
                   />
-                  <Text style={styles.actionButtonText}>
-                    {item.comments.length}
-                  </Text>
+
+                  <Text style={styles.actionButtonText}>Comment</Text>
                 </TouchableOpacity>
               </View>
-              {commentingTweetId === item.id && (
+              {item.id === showCommentsForTweetId && (
                 <View style={styles.commentContainer}>
                   <TextInput
                     style={styles.commentInput}
@@ -185,17 +220,18 @@ const Forum = ({ route }) => {
                 </View>
               )}
 
-              {item.comments.map((comment, index) => (
-                <View key={index} style={styles.commentBox}>
-                  <Text style={styles.commentText}>
-                    {comment.nickname}{" "}
-                    {userType === "expert" && (
-                      <AntDesign name="checkcircle" size={16} color="green" />
-                    )}
-                    : {comment.text}
-                  </Text>
-                </View>
-              ))}
+              {item.comments &&
+                item.comments.map((comment, index) => (
+                  <View key={index} style={styles.commentBox}>
+                    <Text style={styles.commentText}>
+                      {comment.nickname}{" "}
+                      {comment.userType === "expert" && (
+                        <AntDesign name="checkcircle" size={16} color="green" />
+                      )}
+                      : {comment.text}
+                    </Text>
+                  </View>
+                ))}
             </View>
           </View>
         )}
@@ -309,7 +345,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   addButton: {
-    backgroundColor: "#739072", // Change button color to blue
+    backgroundColor: "#739072",
     borderRadius: 10,
     padding: 8,
   },
@@ -333,10 +369,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderTopWidth: 1,
     borderTopColor: "#AF8260",
-    backgroundColor: "rgba(255, 255, 255, 0.5)", // Opak arka plan rengi
-    borderRadius: 10, // Köşeleri yuvarlama
+    backgroundColor: "rgba(255, 255, 255, 0.5)",
+    borderRadius: 10,
   },
-
   input: {
     flex: 1,
     borderWidth: 1,

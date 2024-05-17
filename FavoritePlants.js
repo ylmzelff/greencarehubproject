@@ -7,11 +7,20 @@ import {
   StyleSheet,
   ImageBackground,
   Image,
+  TextInput,
+  Alert,
+  Modal,
 } from "react-native";
 
-const FavoritePlants = () => {
+const FavoritePlants = ({ route }) => {
+  const [selectedPlant, setSelectedPlant] = useState(null);
+
+  const { nickname, userType } = route.params;
+  const [plantDetails, setPlantDetails] = useState([]);
   const [favoritePlants, setFavoritePlants] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [nickText, setNickText] = useState("");
+  const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
     fetch("http://192.168.1.110/compproject/fav_plant.php")
@@ -23,37 +32,65 @@ const FavoritePlants = () => {
       .catch((error) => console.error(error));
   }, []);
 
-  const handleAddPlant = async () => {
-    // Eklemek için gerekli işlemleri burada yapın
-    try {
-      // Add plant logic
-    } catch (error) {
-      console.error(error);
-      // Error handling
+  const handleConfirmAddPlant = (plant) => {
+    setShowInput(true);
+    setNickText("");
+    setSelectedPlant(plant); // Store the selected plant details
+  };
+
+  const getImageSource = (plantName) => {
+    switch (plantName.toLowerCase()) {
+      case "armut":
+        return require("./assets/armut.jpg");
+      case "china rose":
+        return require("./assets/ChineRose.jpg");
+      case "cucumber":
+        return require("./assets/cucumber.jpg");
+      // Add cases for other plant names
+      default:
+        // If no specific image found, return a default image
+        return require("./assets/default.png");
     }
   };
 
-  if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
+  const handleAddPlant = async () => {
+    if (!selectedPlant || !nickText) {
+      Alert.alert("Error", "Please enter a nickname for the plant.");
+      return;
+    }
 
-  const renderPlantContainer = (plant, index) => (
-    <View key={index} style={styles.horizontalContainer}>
-      <View style={styles.imageContainer}>
-        <Image source={require("./assets/tomato.png")} style={styles.image} />
-      </View>
-      <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>{plant}</Text>
-      </View>
-      <TouchableOpacity style={styles.addContainer} onPress={handleAddPlant}>
-        <Text style={styles.addText}>+</Text>
-      </TouchableOpacity>
-    </View>
-  );
+    const plantData = {
+      nickname: nickname,
+      plant_nickname: nickText,
+      plant_name: selectedPlant.name,
+      frequency: selectedPlant.frequency,
+      category: selectedPlant.category_name,
+    };
+
+    try {
+      const response = await fetch(
+        "http://192.168.1.110/compproject/user_plants.php",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(plantData),
+        }
+      );
+
+      if (response.ok) {
+        Alert.alert("Success", "Plant added to your list successfully.");
+        setShowInput(false);
+      } else {
+        Alert.alert("Error", "Failed to add plant.");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert("Error", "Failed to add plant.");
+    }
+  };
 
   return (
     <ImageBackground
@@ -63,7 +100,67 @@ const FavoritePlants = () => {
       <View style={styles.headerContainer}>
         <Text style={styles.heading}>Favorite Plants</Text>
       </View>
-      {favoritePlants.map((plant, index) => renderPlantContainer(plant, index))}
+      <FlatList
+        data={favoritePlants}
+        renderItem={({ item }) => (
+          <View style={styles.horizontalContainer}>
+            <Image
+              style={styles.image}
+              resizeMode="contain"
+              source={getImageSource(item.name)}
+            />
+            <View style={styles.infoContainer}>
+              <Text style={styles.infoText}>Name: {item.name}</Text>
+              <Text style={styles.infoText}>Frequency: {item.frequency}</Text>
+              <Text style={styles.infoText}>
+                Category: {item.category_name}
+              </Text>
+            </View>
+            <TouchableOpacity
+              style={styles.addContainer}
+              onPress={() => handleConfirmAddPlant(item)}
+            >
+              <Text style={styles.addText}>+</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+        keyExtractor={(item, index) =>
+          item.id ? item.id.toString() : index.toString()
+        }
+      />
+
+      {showInput && (
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={showInput}
+          onRequestClose={() => {
+            setShowInput(!showInput);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TextInput
+                style={styles.input}
+                value={nickText} // nickText value assigned to TextInput
+                onChangeText={(text) => setNickText(text)} // User input saved to nickText state
+              />
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={handleAddPlant}
+              >
+                <Text style={styles.buttonText}>Add Plant</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.cancelButton}
+                onPress={() => setShowInput(false)}
+              >
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
+      )}
     </ImageBackground>
   );
 };
@@ -86,64 +183,87 @@ const styles = StyleSheet.create({
   },
   horizontalContainer: {
     flexDirection: "row",
+    alignItems: "center", // Center items vertically
     backgroundColor: "rgba(156, 167, 119, 0.7)",
     marginBottom: 20,
     paddingHorizontal: 15,
-    justifyContent: "space-between",
-    height: 70,
-    width: 400,
     borderRadius: 50,
     overflow: "hidden",
   },
-  imageContainer: {
+  infoContainer: {
     flex: 1,
-    marginRight: 5,
-    alignItems: "center",
+    flexDirection: "column",
     justifyContent: "center",
+    paddingLeft: 10, // Add padding to the left
   },
   image: {
-    width: 60,
+    width: 50,
     height: 50,
-  },
-  infoContainer: {
-    borderRadius: 10,
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
+    resizeMode: "contain",
   },
   infoText: {
-    fontSize: 20,
+    fontSize: 16, // Adjust font size to fit within the screen
     color: "#fff",
   },
   addContainer: {
     backgroundColor: "rgba(255, 255, 255, 0.5)",
     borderRadius: 100,
-    marginLeft: 5,
     alignItems: "center",
     justifyContent: "center",
-    width: 80,
+    width: 50, // Adjust width to save space
+    height: 50, // Adjust height to save space
   },
   addText: {
-    fontSize: 40,
+    fontSize: 24, // Adjust font size to save space
     color: "black",
   },
-  plantsContainer: {
-    flex: 1,
-  },
-  plantItem: {
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+  input: {
+    height: 40,
+    borderColor: "gray",
+    borderWidth: 1,
+    paddingHorizontal: 10,
     marginBottom: 10,
+    backgroundColor: "#fff",
   },
-  plantText: {
-    fontSize: 18,
-    color: "#fff",
-  },
-  loadingContainer: {
-    flex: 1,
+  addButton: {
+    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    padding: 10,
     alignItems: "center",
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  cancelButton: {
+    backgroundColor: "#ff4d4d",
+    padding: 10,
+    alignItems: "center",
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
+  },
+  centeredView: {
+    flex: 1,
     justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+    backgroundColor: "rgba(0, 0, 0, 0.5)", // Added to darken the background
+  },
+  modalView: {
+    margin: 20,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
 });
 

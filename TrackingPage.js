@@ -49,7 +49,10 @@ const TrackingPage = ({ route }) => {
   const handleAddMultipleWateringDates = (date) => {
     const nextWateringDates = calculateNextWateringDates(date, frequency);
     setWateringDates(
-      nextWateringDates.map((date) => ({ date, completed: false }))
+      nextWateringDates.map((date, index) => ({
+        date: index === 0 ? date : nextWateringDates[index - 1],
+        completed: false,
+      }))
     );
     setShowCalendar(false);
   };
@@ -60,8 +63,7 @@ const TrackingPage = ({ route }) => {
     setWateringDates(updatedWateringDates);
   };
 
-  // Find the next incomplete watering date
-  const nextIncompleteWateringDate = wateringDates.find(
+  const nextIncompleteWateringDateIndex = wateringDates.findIndex(
     (date) => !date.completed
   );
 
@@ -83,11 +85,16 @@ const TrackingPage = ({ route }) => {
       <View style={styles.circleContainer}>
         <View style={styles.wateringCircle}>
           <Text style={styles.wateringCircleText}>Next Watering</Text>
+          <Text style={styles.wateringCircleDate}>
+            {wateringDates.length > 0 && nextIncompleteWateringDateIndex !== -1
+              ? wateringDates[
+                  nextIncompleteWateringDateIndex + 1
+                ].date.toLocaleDateString()
+              : "No upcoming watering date"}
+          </Text>
         </View>
         <View style={styles.TemperatureCircle}>
-          <Text style={styles.TemperatureCircleText}>
-            {plantTemperature}&#176;
-          </Text>
+          <Text style={styles.TemperatureCircleText}>{plantTemperature};</Text>
         </View>
         <View style={styles.lightCircle}>
           <Text style={styles.lightCircleText}>{plantLight}</Text>
@@ -124,17 +131,17 @@ const TrackingPage = ({ route }) => {
         Selected Date: {selectedDate ? selectedDate : "No date selected"}
       </Text>
       <Text style={styles.title}>Next Watering Dates</Text>
-      {nextIncompleteWateringDate ? (
+      {nextIncompleteWateringDateIndex !== -1 ? (
         <TouchableOpacity
           style={[styles.dateItem, { backgroundColor: "#FFE6E6" }]}
-          onPress={() =>
-            toggleWatering(wateringDates.indexOf(nextIncompleteWateringDate))
-          }
+          onPress={() => toggleWatering(nextIncompleteWateringDateIndex)}
         >
           <Text style={styles.dateText}>
-            {nextIncompleteWateringDate.date.toLocaleDateString()}
+            {wateringDates[
+              nextIncompleteWateringDateIndex + 1
+            ].date.toLocaleDateString()}
           </Text>
-          <Text style={styles.completedText}> Next</Text>
+          <Text style={styles.completedText}> Complete it </Text>
         </TouchableOpacity>
       ) : (
         <Text>No more upcoming watering dates</Text>

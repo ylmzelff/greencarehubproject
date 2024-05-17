@@ -23,7 +23,7 @@ const SearchAndAddPage = ({ route }) => {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        "http://192.168.1.110/compproject/check_plant.php",
+        `http://192.168.1.110:80/compproject/check_plant.php`,
         {
           method: "POST",
           headers: {
@@ -34,9 +34,9 @@ const SearchAndAddPage = ({ route }) => {
         }
       );
 
-      const data = await response.json();
-
-      if (response.status === 200) {
+      if (response.ok) {
+        // 200 OK response
+        const data = await response.json();
         console.log("Bitki bulundu:", data);
         Alert.alert(
           "Success!",
@@ -45,8 +45,9 @@ const SearchAndAddPage = ({ route }) => {
           { cancelable: false }
         );
         setPlantDetails(data.Data);
-        updateSearchCount(searchText);
+        setError(null);
       } else if (response.status === 404) {
+        // 404 Not Found
         console.log("Bitki bulunamadı");
         Alert.alert(
           "Error",
@@ -57,7 +58,8 @@ const SearchAndAddPage = ({ route }) => {
         setPlantDetails([]);
         setError("Bitki bulunamadı");
       } else {
-        throw new Error(data.Message || "Beklenmeyen bir hata oluştu");
+        // Diğer durumlar
+        throw new Error("Beklenmeyen bir hata oluştu");
       }
     } catch (error) {
       console.error(error);
@@ -69,38 +71,6 @@ const SearchAndAddPage = ({ route }) => {
       );
       setPlantDetails([]);
       setError("Beklenmeyen bir hata oluştu");
-    }
-  };
-
-  const updateSearchCount = async (searchText) => {
-    try {
-      const response = await fetch(
-        "http://192.168.1.110/compproject/update_search_count.php",
-        {
-          method: "POST",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ name: searchText }),
-        }
-      );
-
-      const data = await response.json();
-
-      if (response.status === 200) {
-        console.log("Arama sayısı güncellendi:", data.Message);
-      } else {
-        throw new Error(data.Message || "Beklenmeyen bir hata oluştu");
-      }
-    } catch (error) {
-      console.error(error);
-      Alert.alert(
-        "Hata",
-        "Arama sayısı güncellenirken bir hata oluştu",
-        [{ text: "Tamam", onPress: () => console.log("OK Pressed") }],
-        { cancelable: false }
-      );
     }
   };
 

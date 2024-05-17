@@ -22,7 +22,7 @@ export default class EnthusiastSignInScreen extends Component {
   handleLogin = () => {
     const { nickname_ent, password } = this.state;
 
-    fetch("http://10.30.3.80/compproject/entsignincheck.php", {
+    fetch("http://192.168.1.110/compproject/entsignincheck.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
