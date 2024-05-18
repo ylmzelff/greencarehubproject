@@ -197,8 +197,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10, // Add padding to the left
   },
   image: {
-    width: 50,
-    height: 50,
+    width: 70,
+    height: 70,
     resizeMode: "contain",
   },
   infoText: {

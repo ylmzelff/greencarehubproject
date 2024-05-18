@@ -142,10 +142,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flowersBox: {
-    backgroundColor: "#739072",
+    backgroundColor: "rgba(156, 167, 119, 0.7)",
   },
   vegetablesBox: {
-    backgroundColor: "#739072",
+    backgroundColor: "rgba(156, 167, 119, 0.7)",
   },
   fruitsBox: {
     backgroundColor: "green",
@@ -174,7 +174,7 @@ const styles = StyleSheet.create({
   textContainer: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(144, 238, 144, 0.7)",
+    backgroundColor: "rgba(156, 167, 119, 0.7)",
     height: 100,
     width: "95%",
     marginLeft: 30,

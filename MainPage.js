@@ -1,8 +1,8 @@
-import React from "react";
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import React, { useContext } from "react";
+import { View, Text, StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import SearchAndAddPage from "./SearchAndAddPage"; // Adjust the path
+import SearchAndAddPage from "./SearchAndAddPage";
 import ProfilePage from "./ProfilePage";
 import Forum from "./Forum";
 import Swiper from "react-native-swiper";
@@ -11,17 +11,18 @@ import TabFruits from "./TabFruits";
 import TabFlowers from "./TabFlowers";
 import FavoritePlants from "./FavoritePlants";
 import { MainContext } from "./MainContext";
-import { useContext } from "react";
-import { createContext, useState } from "react";
 
 const Tab = createBottomTabNavigator();
 
 const MainPage = ({ route }) => {
   const { setNickname } = useContext(MainContext);
   const { nickname, userType } = route.params;
-  console.log("Nickname:", nickname); // Ekleyin
+
+  console.log("Nickname:", nickname);
   console.log("User Type:", userType);
+
   setNickname(nickname);
+
   return (
     <View style={styles.container}>
       <Swiper style={styles.wrapper} showsButtons={false}>
@@ -48,8 +49,6 @@ const BottomTabNavigator = ({ route }) => {
         }}
         initialParams={{ nickname: nickname, userType: userType }}
       />
-
-      {/* Yorum satırını buraya taşıyın */}
       <Tab.Screen
         name="Home"
         component={MainPage}
@@ -60,7 +59,6 @@ const BottomTabNavigator = ({ route }) => {
         }}
         initialParams={{ nickname: nickname, userType: userType }}
       />
-
       <Tab.Screen
         name="Search"
         component={SearchAndAddPage}
@@ -101,41 +99,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "flex-start",
   },
+  wrapper: {
+    // Add styles for swiper wrapper if needed
+  },
   title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
     marginTop: 100,
-  },
-  boxContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "80%",
-  },
-  addButton: {
-    position: "absolute",
-    bottom: 200,
-    right: 30,
-  },
-  box: {
-    width: 100,
-    height: 35,
-    borderRadius: 10,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  flowersBox: {
-    backgroundColor: "lightblue",
-  },
-  vegetablesBox: {
-    backgroundColor: "lightblue",
-  },
-  fruitsBox: {
-    backgroundColor: "lightblue",
-  },
-  boxText: {
-    marginTop: 5,
-    textAlign: "center",
   },
 });
 
