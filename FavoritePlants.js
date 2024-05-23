@@ -40,7 +40,7 @@ const FavoritePlants = ({ route }) => {
 
   const getImageSource = (plantName) => {
     switch (plantName.toLowerCase()) {
-      case "armut":
+      case "pear":
         return require("./assets/armut.jpg");
       case "china rose":
         return require("./assets/ChineRose.jpg");

@@ -1,21 +1,39 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, Image } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  Alert,
+} from "react-native";
 import { Calendar } from "react-native-calendars";
 
 const TrackingPage = ({ route }) => {
-  const {
-    plantNickname,
-    plantRealName,
-    plantTemperature,
-    plantLight,
-    frequency,
-  } = route.params;
-
+  const { plantNickname, plantRealName } = route.params;
+  const [plantInfo, setPlantInfo] = useState({});
   const [wateringDates, setWateringDates] = useState([]);
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
 
-  // Function to convert frequency string to number
+  useEffect(() => {
+    fetch(`http://192.168.1.110/compproject/get_plant_info.php`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ plant_real_name: plantRealName }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setPlantInfo(data);
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Error", "Failed to fetch plant information.");
+      });
+  }, [plantRealName]);
+
   const getFrequencyNumber = (frequency) => {
     switch (frequency.toLowerCase()) {
       case "once a week":
@@ -27,11 +45,10 @@ const TrackingPage = ({ route }) => {
       case "four times a week":
         return 4;
       default:
-        return 1; // Default to once a week if frequency is unrecognized
+        return 1;
     }
   };
 
-  // Function to calculate next watering dates based on frequency
   const calculateNextWateringDates = (selectedDate, frequency) => {
     const nextDates = [];
     let currentDate = new Date(selectedDate);
@@ -47,7 +64,10 @@ const TrackingPage = ({ route }) => {
   };
 
   const handleAddMultipleWateringDates = (date) => {
-    const nextWateringDates = calculateNextWateringDates(date, frequency);
+    const nextWateringDates = calculateNextWateringDates(
+      date,
+      plantInfo.frequency
+    );
     setWateringDates(
       nextWateringDates.map((date, index) => ({
         date: index === 0 ? date : nextWateringDates[index - 1],
@@ -73,7 +93,7 @@ const TrackingPage = ({ route }) => {
         <View style={styles.textContainer}>
           <Text style={styles.text1}>{plantNickname}</Text>
           <Text style={styles.text2}>{plantRealName}</Text>
-          <Text style={styles.text2}>Frequency: {frequency}</Text>
+          <Text style={styles.text2}>Frequency: {plantInfo.frequency}</Text>
         </View>
         <View style={styles.imageContainer}>
           <Image
@@ -84,25 +104,22 @@ const TrackingPage = ({ route }) => {
       </View>
       <View style={styles.circleContainer}>
         <View style={styles.wateringCircle}>
-          <Text style={styles.wateringCircleText}>Next Watering</Text>
-          <Text style={styles.wateringCircleDate}>
-            {wateringDates.length > 0 && nextIncompleteWateringDateIndex !== -1
-              ? wateringDates[
-                  nextIncompleteWateringDateIndex + 1
-                ].date.toLocaleDateString()
-              : "No upcoming watering date"}
-          </Text>
+          <Text style={styles.wateringCircleText}>Planting Time</Text>
+          <Text style={styles.lightCircleText}>{plantInfo.planting_time}</Text>
+          <Text style={styles.wateringCircleDate}></Text>
         </View>
         <View style={styles.TemperatureCircle}>
-          <Text style={styles.TemperatureCircleText}>{plantTemperature};</Text>
+          <Text style={styles.TemperatureCircleText}>
+            {plantInfo.ideal_temperature}
+          </Text>
         </View>
         <View style={styles.lightCircle}>
-          <Text style={styles.lightCircleText}>{plantLight}</Text>
+          <Text style={styles.lightCircleText}>{plantInfo.sunlight}</Text>
         </View>
       </View>
       <View style={styles.circleInfoContainer}>
         <View style={styles.info1Circle}>
-          <Text style={styles.info1Text}>Next Watering</Text>
+          <Text style={styles.info1Text}>Planting Time</Text>
         </View>
         <View style={styles.info2Circle}>
           <Text style={styles.info2Text}>Ideal Temperature</Text>

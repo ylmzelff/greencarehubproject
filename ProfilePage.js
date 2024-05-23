@@ -11,11 +11,11 @@ import { FontAwesome } from "@expo/vector-icons";
 import axios from "axios";
 
 const profilePictures = [
-  require("./assets/picture1.jpg"),
-  require("./assets/picture2.jpg"),
-  require("./assets/picture3.jpg"),
-  require("./assets/picture4.jpg"),
-  require("./assets/picture5.jpg"),
+  { source: require("./assets/picture1.jpg"), icontype: 1 },
+  { source: require("./assets/picture2.jpg"), icontype: 2 },
+  { source: require("./assets/picture3.jpg"), icontype: 3 },
+  { source: require("./assets/picture4.jpg"), icontype: 4 },
+  { source: require("./assets/picture5.jpg"), icontype: 5 },
 ];
 
 export default class ProfilePage extends Component {
@@ -23,6 +23,7 @@ export default class ProfilePage extends Component {
     super(props);
     this.state = {
       selectedPicture: profilePictures[0], // Default picture
+      successMessage: "", // Success message state
     };
   }
 
@@ -31,35 +32,23 @@ export default class ProfilePage extends Component {
   };
 
   handleSaveProfile = () => {
-    const { nickname, email, isExpertLoggedIn } = this.props.route.params;
+    const { nickname, email } = this.props.route.params;
     const { selectedPicture } = this.state;
 
-    const formData = new FormData();
-    formData.append("nickname", nickname);
-    formData.append("email", email);
-    formData.append("isExpertLoggedIn", isExpertLoggedIn);
-    formData.append("profilePicture", {
-      uri: selectedPicture.uri,
-      type: "image/jpeg", // Adjust type as needed
-      name: "profilePicture.jpg",
-    });
+    if (!selectedPicture.icontype) {
+      Alert.alert("Warning", "Please select a profile picture");
+      return;
+    }
 
     axios
-      .post("http://192.168.1.110:80/compproject/save_profile.php", formData, {
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "multipart/form-data",
-        },
+      .post("http://10.30.10.210/compproject/save_profile.php", {
+        nickname: nickname,
+        email: email,
+        icontype: selectedPicture.icontype,
       })
       .then((response) => {
         console.log(response.data);
-        // Pass selected picture to the Forum or other components
-        this.props.navigation.navigate("Forum", {
-          nickname: nickname,
-          email: email,
-          isExpertLoggedIn: isExpertLoggedIn,
-          profilePicture: selectedPicture,
-        });
+        this.setState({ successMessage: "Profile saved successfully!" });
       })
       .catch((error) => {
         console.error(error);
@@ -70,12 +59,12 @@ export default class ProfilePage extends Component {
   render() {
     const { nickname, email, isExpertLoggedIn, userType } =
       this.props.route.params;
-    const { selectedPicture } = this.state;
+    const { selectedPicture, successMessage } = this.state;
 
     return (
       <View style={styles.container}>
         <View style={styles.profileContainer}>
-          <Image source={selectedPicture} style={styles.profileIcon} />
+          <Image source={selectedPicture.source} style={styles.profileIcon} />
           <Text style={styles.nickname}>Nickname: {nickname}</Text>
           <Text style={styles.email}>Email: {email}</Text>
           <Text style={styles.userType}>User Type: {userType}</Text>
@@ -94,10 +83,15 @@ export default class ProfilePage extends Component {
               key={index}
               onPress={() => this.handlePictureSelect(picture)}
             >
-              <Image source={picture} style={styles.pictureOption} />
+              <Image source={picture.source} style={styles.pictureOption} />
             </TouchableOpacity>
           ))}
         </View>
+        {successMessage !== "" && ( // Show success message if it's not empty
+          <View style={styles.successMessageContainer}>
+            <Text style={styles.successMessageText}>{successMessage}</Text>
+          </View>
+        )}
         <TouchableOpacity
           style={styles.saveButton}
           onPress={this.handleSaveProfile}
@@ -160,5 +154,15 @@ const styles = StyleSheet.create({
   },
   saveButtonText: {
     color: "white",
+  },
+  successMessageContainer: {
+    position: "absolute",
+    top: 20,
+    width: "100%",
+    alignItems: "center",
+  },
+  successMessageText: {
+    color: "green",
+    fontWeight: "bold",
   },
 });

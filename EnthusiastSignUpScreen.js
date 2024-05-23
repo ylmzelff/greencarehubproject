@@ -13,7 +13,7 @@ export default class EnthusiastSignUpScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nickname_ent: "", // Güncelleme: nickname_ent olarak değiştirildi
+      nickname_ent: "",
       email: "",
       password: "",
       confirm_password: "",
@@ -21,13 +21,10 @@ export default class EnthusiastSignUpScreen extends Component {
   }
 
   InsertRecord = () => {
-    var nickname_ent = this.state.nickname_ent; // Güncelleme: nickname_ent olarak değiştirildi
-    var email = this.state.email;
-    var password = this.state.password;
-    var confirm_password = this.state.confirm_password;
+    const { nickname_ent, email, password, confirm_password } = this.state;
 
     if (
-      nickname_ent.length === 0 || // Güncelleme: nickname_ent olarak değiştirildi
+      nickname_ent.length === 0 ||
       email.length === 0 ||
       password.length === 0 ||
       confirm_password.length === 0
@@ -40,7 +37,7 @@ export default class EnthusiastSignUpScreen extends Component {
         "Content-Type": "application/json",
       };
       var Data = {
-        nickname_ent: nickname_ent, // Güncelleme: nickname_ent olarak değiştirildi
+        nickname: nickname_ent,
         email: email,
         password: password,
         confirm_password: confirm_password,
@@ -54,13 +51,8 @@ export default class EnthusiastSignUpScreen extends Component {
         .then((Response) => Response.json())
         .then((response) => {
           alert(response[0].Message);
-
-          if (
-            response[0].Message ===
-            "Enthusiast has been registered successfully"
-          ) {
-            this.props.navigation.navigate("Forum", { nickname: nickname_ent }); // Güncelleme: nickname_ent olarak değiştirildi
-            this.handleSignIn();
+          if (response[0].Message === "User has been registered successfully") {
+            this.handleSignIn(); // Giriş ekranına yönlendirme işlemi
           }
         })
         .catch((error) => {
@@ -86,7 +78,7 @@ export default class EnthusiastSignUpScreen extends Component {
                 placeholder="Nickname"
                 placeholderTextColor="black"
                 style={styles.txtStyle}
-                onChangeText={(nickname_ent) => this.setState({ nickname_ent })} // Güncelleme: nickname_ent olarak değiştirildi
+                onChangeText={(nickname_ent) => this.setState({ nickname_ent })}
               />
               <TextInput
                 placeholder="Email"

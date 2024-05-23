@@ -13,14 +13,15 @@ class ExpertSignInScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nickname_exp: "", // Değişiklik: 'email' yerine 'nickname_exp'
+      nickname: "",
+      userType: "",
       password: "",
       showSuccessMessage: false,
     };
   }
 
   handleLogin = () => {
-    const { nickname_exp, password } = this.state;
+    const { nickname, password, userType } = this.state; // userType'ı da state'ten al
 
     fetch("http://192.168.1.110/compproject/expsignincheck.php", {
       method: "POST",
@@ -28,7 +29,7 @@ class ExpertSignInScreen extends Component {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nickname_exp, password }),
+      body: JSON.stringify({ nickname, password, userType }), // userType'ı da gönder
     })
       .then((response) => {
         if (!response.ok) {
@@ -37,14 +38,24 @@ class ExpertSignInScreen extends Component {
         return response.json();
       })
       .then((data) => {
+        console.log("Server response:", data); // Sunucudan gelen veriyi kontrol et
         if (data.Message === "true") {
           this.setState({ showSuccessMessage: true });
           setTimeout(() => {
-            this.setState({ showSuccessMessage: false });
+            this.setState({
+              showSuccessMessage: false,
+              nickname: "", // Giriş başarılı olduğunda nickname alanını temizle
+              password: "", // Giriş başarılı olduğunda şifre alanını temizle
+            });
           }, 3000);
-          this.handleSignIn(nickname_exp);
+          this.handleSignIn(nickname);
         } else if (data.Message === "false") {
-          Alert.alert("Uyarı", "Nickname veya şifre yanlış!"); // Değişiklik: 'Email' yerine 'Nickname'
+          Alert.alert("Uyarı", "Nickname veya şifre yanlış!");
+          this.setState({
+            // Giriş başarısız olduğunda da alanları temizle
+            nickname: "",
+            password: "",
+          });
         }
       })
       .catch((error) => {
@@ -53,13 +64,14 @@ class ExpertSignInScreen extends Component {
       });
   };
 
-  handleSignIn = (nickname) => {
+  handleSignIn = () => {
     const { navigation } = this.props;
-    navigation.navigate("Main", { nickname, userType: "expert" }); // userType ekleniyor
+    const { nickname } = this.state;
+    navigation.navigate("Main", { nickname, userType: "expert" });
   };
 
   render() {
-    const { nickname_exp, password, showSuccessMessage } = this.state;
+    const { nickname, password, showSuccessMessage } = this.state;
 
     return (
       <ImageBackground
@@ -71,10 +83,10 @@ class ExpertSignInScreen extends Component {
             <View style={styles.bottomContainer}>
               <TextInput
                 style={styles.placeholderText}
-                placeholder="Nickname" // Değişiklik: 'Email' yerine 'Nickname'
+                placeholder="Nickname"
                 placeholderTextColor="black"
-                value={nickname_exp}
-                onChangeText={(nickname_exp) => this.setState({ nickname_exp })} // Değişiklik: 'email' yerine 'nickname_exp'
+                value={nickname}
+                onChangeText={(nickname) => this.setState({ nickname })}
               />
               <TextInput
                 style={styles.placeholderText}

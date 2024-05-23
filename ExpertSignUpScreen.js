@@ -21,7 +21,7 @@ export default class ExpertSignUpScreen extends Component {
   }
 
   InsertRecord = () => {
-    const { nickname_exp, email, password, confirm_password } = this.state;
+    const { nickname_exp, email, password, confirm_password } = this.state; // nickname_exp olarak state'ten doğru şekilde alıyoruz
 
     if (
       nickname_exp.length === 0 ||
@@ -37,7 +37,7 @@ export default class ExpertSignUpScreen extends Component {
         "Content-Type": "application/json",
       };
       var Data = {
-        nickname_exp: nickname_exp,
+        nickname: nickname_exp, // nickname_exp olarak geçiyoruz
         email: email,
         password: password,
         confirm_password: confirm_password,
@@ -52,9 +52,9 @@ export default class ExpertSignUpScreen extends Component {
         .then((response) => {
           alert(response[0].Message);
           if (
-            response[0].Message === "Expert has been registered successfully"
+            response[0].Message === "User has been registered successfully" // Expert yazmışsınız, ancak PHP tarafında "User" olarak kontrol ediyorsunuz
           ) {
-            this.handleSignIn(email);
+            this.handleSignIn(email); // email olarak geçiriyoruz, bu şekilde handleSignIn fonksiyonunu doğru çağırmış oluyoruz
           }
         })
         .catch((error) => {
@@ -65,7 +65,7 @@ export default class ExpertSignUpScreen extends Component {
 
   handleSignIn = (email) => {
     const { navigation } = this.props;
-    navigation.navigate("Main", { nickname: email });
+    navigation.navigate("ExpertSignIn", { nickname: email });
   };
 
   render() {
@@ -93,12 +93,14 @@ export default class ExpertSignUpScreen extends Component {
                 placeholder="Password"
                 placeholderTextColor="black"
                 style={styles.txtStyle}
+                secureTextEntry={true}
                 onChangeText={(password) => this.setState({ password })}
               />
               <TextInput
                 placeholder="Confirm Password"
                 placeholderTextColor="black"
                 style={styles.txtStyle}
+                secureTextEntry={true}
                 onChangeText={(confirm_password) =>
                   this.setState({ confirm_password })
                 }

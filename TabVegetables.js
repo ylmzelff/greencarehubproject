@@ -11,6 +11,7 @@ const TabVegetables = () => {
   const handleAddButtonPress = () => {
     navigation.navigate("FavoritePlants");
   };
+
   const [vegetables, setVegetables] = useState([]);
 
   useEffect(() => {
@@ -35,21 +36,21 @@ const TabVegetables = () => {
         console.error(error);
         console.error("Error fetching data for nickname:", nickname);
       });
-  }, []); // nickname bağımlılığını ekleyin
+  }, [nickname]);
 
   const handleTrackingPage = (
     plantNickname,
     plantName,
-    ideal_temperature,
+    idealTemperature,
     sunlight,
-    frequency
+    frequency // Ensure frequency is passed here
   ) => {
     navigation.navigate("TrackingPage", {
       plantNickname: plantNickname,
       plantRealName: plantName,
-      plantTemperature: ideal_temperature,
+      plantTemperature: idealTemperature,
       plantLight: sunlight,
-      frequency: frequency,
+      frequency: frequency, // Ensure frequency is included here
     });
   };
 

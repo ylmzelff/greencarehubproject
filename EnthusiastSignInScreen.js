@@ -14,13 +14,15 @@ export default class EnthusiastSignInScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      nickname_ent: "", // Güncelleme: nickname_ent olarak değiştirildi
+      nickname: "",
+      userType: "",
       password: "",
+      showSuccessMessage: false,
     };
   }
 
   handleLogin = () => {
-    const { nickname_ent, password } = this.state;
+    const { nickname, password, userType } = this.state; // userType'ı da state'ten al
 
     fetch("http://192.168.1.110/compproject/entsignincheck.php", {
       method: "POST",
@@ -28,7 +30,7 @@ export default class EnthusiastSignInScreen extends Component {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nickname_ent, password }),
+      body: JSON.stringify({ nickname, password, userType }), // userType'ı da gönder
     })
       .then((response) => {
         if (!response.ok) {
@@ -37,14 +39,24 @@ export default class EnthusiastSignInScreen extends Component {
         return response.json();
       })
       .then((data) => {
+        console.log("Server response:", data); // Sunucudan gelen veriyi kontrol et
         if (data.Message === "true") {
           this.setState({ showSuccessMessage: true });
           setTimeout(() => {
-            this.setState({ showSuccessMessage: false });
+            this.setState({
+              showSuccessMessage: false,
+              nickname: "", // Giriş başarılı olduğunda nickname alanını temizle
+              password: "", // Giriş başarılı olduğunda şifre alanını temizle
+            });
           }, 3000);
-          this.handleSignIn();
+          this.handleSignIn(nickname);
         } else if (data.Message === "false") {
           Alert.alert("Uyarı", "Nickname veya şifre yanlış!");
+          this.setState({
+            // Giriş başarısız olduğunda da alanları temizle
+            nickname: "",
+            password: "",
+          });
         }
       })
       .catch((error) => {
@@ -55,11 +67,8 @@ export default class EnthusiastSignInScreen extends Component {
 
   handleSignIn = () => {
     const { navigation } = this.props;
-    const { nickname_ent } = this.state;
-    navigation.navigate("Main", {
-      nickname: nickname_ent,
-      userType: "enthusiast",
-    });
+    const { nickname } = this.state;
+    navigation.navigate("Main", { nickname, userType: "enthusiast" });
   };
 
   render() {
@@ -78,9 +87,10 @@ export default class EnthusiastSignInScreen extends Component {
                 ref={(input) => (this.nicknameInput = input)}
                 style={styles.input}
                 placeholderTextColor="black"
-                value={this.state.nickname_ent}
-                onChangeText={(nickname_ent) => this.setState({ nickname_ent })}
+                value={this.state.nickname} // Burada nickname kullanılmalı
+                onChangeText={(nickname) => this.setState({ nickname })}
               />
+
               <TouchableOpacity onPress={() => this.passwordInput.focus()}>
                 <Text style={styles.placeholderText}>Password</Text>
               </TouchableOpacity>
@@ -133,7 +143,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   placeholderText: {
-    borderBottomColor: "black",
+    borderBottomColor: "gray",
     borderBottomWidth: 1,
     width: "100%",
     marginBottom: 20,
@@ -145,5 +155,10 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     width: "100%",
     height: "100%",
+  },
+  successText: {
+    marginTop: 10,
+    color: "green",
+    fontWeight: "bold",
   },
 });

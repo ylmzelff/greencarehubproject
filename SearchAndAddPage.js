@@ -23,7 +23,7 @@ const SearchAndAddPage = ({ route }) => {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.110:80/compproject/check_plant.php`,
+        `http://192.168.1.110/compproject/check_plant.php`,
         {
           method: "POST",
           headers: {

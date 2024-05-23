@@ -36,7 +36,7 @@ const TabFlowers = () => {
         console.error(error);
         console.error("Error fetching data for nickname:", nickname);
       });
-  }, []);
+  }, [nickname]);
 
   const handleTrackingPage = (
     plantNickname,
@@ -93,14 +93,12 @@ const TabFlowers = () => {
           }
         >
           <View style={styles.imageContainer}>
-            <Image
-              //source={{ uri: flower.image_url }} // Add a default image source
-              style={{ width: 120, height: 100, resizeMode: "contain" }}
-            />
+            <Image style={{ width: 120, height: 100, resizeMode: "contain" }} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text1}>{flower.plant_nickname}</Text>
             <Text style={styles.text2}>{flower.frequency}</Text>
+            <Text style={styles.text2}>{flower.ideal_temperature}</Text>
           </View>
         </TouchableOpacity>
       ))}
@@ -142,13 +140,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flowersBox: {
-    backgroundColor: "green",
+    backgroundColor: "#739072",
   },
   vegetablesBox: {
-    backgroundColor: "#739072",
+    backgroundColor: "green",
   },
   fruitsBox: {
     backgroundColor: "#739072",
+  },
+  flowersText: {
+    color: "white",
   },
   boxText: {
     marginTop: 5,
