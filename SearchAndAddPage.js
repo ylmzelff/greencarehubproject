@@ -23,7 +23,7 @@ const SearchAndAddPage = ({ route }) => {
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `http://192.168.1.110/compproject/check_plant.php`,
+        `http://10.30.10.210/compproject/check_plant.php`,
         {
           method: "POST",
           headers: {
@@ -105,7 +105,7 @@ const SearchAndAddPage = ({ route }) => {
       };
 
       const response = await fetch(
-        "http://192.168.1.110/compproject/user_plants.php",
+        "http://10.30.10.210/compproject/user_plants.php",
         {
           method: "POST",
           headers: {
@@ -222,12 +222,14 @@ const SearchAndAddPage = ({ route }) => {
                 onChangeText={(text) => setNickText(text)} // Kullanıcının girdiği metni nickText state'ine kaydedin
               />
 
-              <TouchableOpacity
-                style={styles.addButton}
-                onPress={handleAddPlant}
-              >
-                <Text style={styles.buttonText}>Add Plant</Text>
-              </TouchableOpacity>
+              {userType === "expert" && (
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={handleAddPlant}
+                >
+                  <Text style={styles.buttonText}>Add Plant</Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 

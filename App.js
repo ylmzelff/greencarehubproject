@@ -18,7 +18,6 @@ import Forum from "./Forum";
 import WelcomeScreen from "./WelcomeScreen";
 import TrackingPage from "./TrackingPage";
 import { MainProvider } from "./MainContext";
-import ProfilePage from "./ProfilePage"; // Buraya ekledik
 
 const Stack = createStackNavigator();
 

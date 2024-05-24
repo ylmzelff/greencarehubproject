@@ -3,7 +3,6 @@ import { View, Text, StyleSheet } from "react-native";
 import { AntDesign } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SearchAndAddPage from "./SearchAndAddPage";
-import ProfilePage from "./ProfilePage";
 import Forum from "./Forum";
 import Swiper from "react-native-swiper";
 import TabVegetables from "./TabVegetables";
@@ -75,16 +74,6 @@ const BottomTabNavigator = ({ route }) => {
         options={{
           tabBarIcon: ({ color, size }) => (
             <AntDesign name="hearto" size={size} color={color} />
-          ),
-        }}
-        initialParams={{ nickname: nickname, userType: userType }}
-      />
-      <Tab.Screen
-        name="Profile"
-        component={ProfilePage}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <AntDesign name="profile" size={size} color={color} />
           ),
         }}
         initialParams={{ nickname: nickname, userType: userType }}

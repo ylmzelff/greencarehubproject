@@ -17,7 +17,7 @@ const TrackingPage = ({ route }) => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
-    fetch(`http://192.168.1.110/compproject/get_plant_info.php`, {
+    fetch(`http://10.30.10.210/compproject/get_plant_info.php`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -87,6 +87,20 @@ const TrackingPage = ({ route }) => {
     (date) => !date.completed
   );
 
+  const getImageSource = (plantName) => {
+    switch (plantName.toLowerCase()) {
+      case "pear":
+        return require("./assets/armut.jpg");
+      case "china rose":
+        return require("./assets/ChineRose.jpg");
+      case "cucumber":
+        return require("./assets/cucumber.jpg");
+      // Add cases for other plant names
+      default:
+        return require("./assets/default.png");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.greenContainer}>
@@ -97,7 +111,7 @@ const TrackingPage = ({ route }) => {
         </View>
         <View style={styles.imageContainer}>
           <Image
-            source={require("./assets/tomato.png")}
+            source={getImageSource(plantRealName)}
             style={{ width: 180, height: 100, resizeMode: "contain" }}
           />
         </View>

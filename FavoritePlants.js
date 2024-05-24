@@ -23,7 +23,7 @@ const FavoritePlants = ({ route }) => {
   const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
-    fetch("http://192.168.1.110/compproject/fav_plant.php")
+    fetch("http://10.30.10.210/compproject/fav_plant.php")
       .then((response) => response.json())
       .then((data) => {
         setFavoritePlants(data);
@@ -69,7 +69,7 @@ const FavoritePlants = ({ route }) => {
 
     try {
       const response = await fetch(
-        "http://192.168.1.110/compproject/user_plants.php",
+        "http://10.33.17.137/compproject/user_plants.php",
         {
           method: "POST",
           headers: {

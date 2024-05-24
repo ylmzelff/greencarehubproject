@@ -15,7 +15,7 @@ const TabFlowers = () => {
   const [flowers, setFlowers] = useState([]);
 
   useEffect(() => {
-    fetch("http://192.168.1.110/compproject/get_flower.php", {
+    fetch("http://10.30.10.210/compproject/get_flower.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -43,15 +43,29 @@ const TabFlowers = () => {
     plantName,
     idealTemperature,
     sunlight,
-    frequency // Ensure frequency is passed here
+    frequency
   ) => {
     navigation.navigate("TrackingPage", {
       plantNickname: plantNickname,
       plantRealName: plantName,
       plantTemperature: idealTemperature,
       plantLight: sunlight,
-      frequency: frequency, // Ensure frequency is included here
+      frequency: frequency,
     });
+  };
+
+  const getImageSource = (plantName) => {
+    switch (plantName.toLowerCase()) {
+      case "pear":
+        return require("./assets/armut.jpg");
+      case "china rose":
+        return require("./assets/ChineRose.jpg");
+      case "cucumber":
+        return require("./assets/cucumber.jpg");
+      // Add cases for other plant names
+      default:
+        return require("./assets/default.png");
+    }
   };
 
   return (
@@ -88,12 +102,15 @@ const TabFlowers = () => {
               flower.name,
               flower.ideal_temperature,
               flower.sunlight,
-              flower.frequency // Ensure frequency is passed here
+              flower.frequency
             )
           }
         >
           <View style={styles.imageContainer}>
-            <Image style={{ width: 120, height: 100, resizeMode: "contain" }} />
+            <Image
+              source={getImageSource(flower.name)}
+              style={{ width: 120, height: 100, resizeMode: "contain" }}
+            />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text1}>{flower.plant_nickname}</Text>

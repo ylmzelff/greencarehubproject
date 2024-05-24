@@ -15,7 +15,7 @@ const TabFruits = () => {
   const [fruits, setFruits] = useState([]);
 
   useEffect(() => {
-    fetch("http://192.168.1.110/compproject/get_fruit.php", {
+    fetch("http://10.30.10.210/compproject/get_fruit.php", {
       method: "POST",
       headers: {
         Accept: "application/json",
@@ -36,7 +36,7 @@ const TabFruits = () => {
         console.error(error);
         console.error("Error fetching data for nickname:", nickname);
       });
-  }, []);
+  }, [nickname]);
 
   const handleTrackingPage = (
     plantNickname,
@@ -52,6 +52,20 @@ const TabFruits = () => {
       plantLight: sunlight,
       frequency: frequency,
     });
+  };
+
+  const getImageSource = (plantName) => {
+    switch (plantName.toLowerCase()) {
+      case "pear":
+        return require("./assets/armut.jpg");
+      case "china rose":
+        return require("./assets/ChineRose.jpg");
+      case "cucumber":
+        return require("./assets/cucumber.jpg");
+      // Add cases for other plant names
+      default:
+        return require("./assets/default.png");
+    }
   };
 
   return (
@@ -88,14 +102,14 @@ const TabFruits = () => {
               fruit.name,
               fruit.ideal_temperature,
               fruit.sunlight,
-              fruit.frequency // Ensure frequency is passed here
+              fruit.frequency
             )
           }
         >
           <View style={styles.imageContainer}>
             <Image
-              //source={{ uri: fruit.image_url }} // Add a default image source
-              style={{ width: 120, height: 100, resizeMode: "contain" }}
+              source={getImageSource(fruit.name)}
+              style={{ width: 140, height: 120, resizeMode: "contain" }}
             />
           </View>
           <View style={styles.textContainer}>
@@ -142,15 +156,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   flowersBox: {
-    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    backgroundColor: "#739072",
   },
   vegetablesBox: {
-    backgroundColor: "rgba(156, 167, 119, 0.7)",
-  },
-  fruitsBox: {
     backgroundColor: "green",
   },
-  fruitsText: {
+  fruitsBox: {
+    backgroundColor: "#739072",
+  },
+  flowersText: {
     color: "white",
   },
   boxText: {
@@ -174,7 +188,7 @@ const styles = StyleSheet.create({
   textContainer: {
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    backgroundColor: "rgba(144, 238, 144, 0.7)",
     height: 100,
     width: "95%",
     marginLeft: 30,
