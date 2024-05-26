@@ -70,25 +70,17 @@ const TabVegetables = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.boxContainer}></View>
       <View style={styles.boxContainer}>
-        <TouchableOpacity
-          style={[styles.box, styles.flowersBox]}
-          onPress={() => navigation.navigate("TabFlowers")}
-        >
+        <View style={[styles.box, styles.flowersBox]}>
           <Text style={[styles.boxText, styles.flowersText]}>Flowers</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.box, styles.vegetablesBox]}
-          onPress={() => navigation.navigate("TabVegetables")}
-        >
-          <Text style={styles.boxText}>Vegetables</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.box, styles.fruitsBox]}
-          onPress={() => navigation.navigate("TabFruits")}
-        >
-          <Text style={styles.boxText}>Fruits</Text>
-        </TouchableOpacity>
+        </View>
+        <View style={[styles.box, styles.vegetablesBox]}>
+          <Text style={[styles.boxText]}>Vegetables</Text>
+        </View>
+        <View style={[styles.box, styles.fruitsBox]}>
+          <Text style={[styles.boxText]}>Fruits</Text>
+        </View>
       </View>
       <Text style={styles.title}>My Vegetables</Text>
 
@@ -129,6 +121,7 @@ const TabVegetables = () => {
 
 const styles = StyleSheet.create({
   container: {
+    marginTop: 30,
     flex: 1,
     alignItems: "center",
     justifyContent: "flex-start",
@@ -137,8 +130,9 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 20,
-    marginTop: 100,
+    marginTop: 30, // Önceki değeri 100'den 70'e düşürdüm
   },
+
   boxContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -165,9 +159,7 @@ const styles = StyleSheet.create({
   fruitsBox: {
     backgroundColor: "#739072",
   },
-  flowersText: {
-    color: "white",
-  },
+
   boxText: {
     marginTop: 5,
     textAlign: "center",

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import {
   View,
   Text,
@@ -9,21 +9,65 @@ import {
   ImageBackground,
   ScrollView,
   Image,
+  Keyboard,
+  Dimensions,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import { createStackNavigator } from "@react-navigation/stack";
 
-const SearchAndAddPage = ({ route }) => {
-  const { nickname, userType } = route.params;
+const SearchAndAddPage = ({ route, navigation }) => {
+  const { nickname, userType } = route?.params || {};
   const [searchText, setSearchText] = useState("");
   const [plantDetails, setPlantDetails] = useState([]);
   const [error, setError] = useState(null);
-  const [isAddingPlant, setIsAddingPlant] = useState(false);
   const [nickText, setNickText] = useState("");
+  const [isContainerVisible, setIsContainerVisible] = useState(false); // State for container visibility
+
+  const ScrollViewRef = useRef(null);
+
+  // State variables for new plant data
+  const [newPlant, setNewPlant] = useState({
+    name: "",
+    frequency: "",
+    sunlight: "",
+    soilcare: "",
+    ideal_temperature: "",
+    planting_time: "",
+    lifespan: "",
+    category_name: "",
+  });
+
+  // Ref for TextInput focus
+  const inputRef = useRef(null);
+
+  // Function to handle TextInput focus
+  const handleInputFocus = () => {
+    setTimeout(() => {
+      inputRef.current.measure((x, y, width, height, pageX, pageY) => {
+        const scrollTo = pageY + height;
+        const screenHeight = Dimensions.get("window").height;
+        const scrollAmount = scrollTo - screenHeight + 100; // Adjust this value according to your UI
+        if (scrollAmount > 0) {
+          // Scroll only if necessary
+          ScrollViewRef.current.scrollTo({ y: scrollAmount });
+        }
+      });
+    }, 100); // Delay to ensure component layout is complete before measuring
+  };
+
+  // Function to handle TextInput blur
+  const handleInputBlur = () => {
+    ScrollViewRef.current.scrollTo({ y: 0 }); // Scroll back to the top
+  };
+
+  const handleInputChange = (field, value) => {
+    setNewPlant({ ...newPlant, [field]: value });
+  };
 
   const handleSearch = async () => {
     try {
       const response = await fetch(
-        `http://10.30.10.210/compproject/check_plant.php`,
+        "http://10.30.10.210/compproject/check_plant.php",
         {
           method: "POST",
           headers: {
@@ -35,9 +79,7 @@ const SearchAndAddPage = ({ route }) => {
       );
 
       if (response.ok) {
-        // 200 OK response
         const data = await response.json();
-        console.log("Bitki bulundu:", data);
         Alert.alert(
           "Success!",
           "Plant exists!",
@@ -47,30 +89,27 @@ const SearchAndAddPage = ({ route }) => {
         setPlantDetails(data.Data);
         setError(null);
       } else if (response.status === 404) {
-        // 404 Not Found
-        console.log("Bitki bulunamadı");
         Alert.alert(
           "Error",
-          "Plant could not found",
+          "Plant could not be found",
           [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
           { cancelable: false }
         );
         setPlantDetails([]);
-        setError("Bitki bulunamadı");
+        setError("Plant could not be found");
       } else {
-        // Diğer durumlar
-        throw new Error("Beklenmeyen bir hata oluştu");
+        throw new Error("Unexpected error occurred");
       }
     } catch (error) {
       console.error(error);
       Alert.alert(
-        "Hata",
-        "Beklenmeyen bir hata oluştu",
-        [{ text: "Tamam", onPress: () => console.log("OK Pressed") }],
+        "Error",
+        "An unexpected error occurred",
+        [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
         { cancelable: false }
       );
       setPlantDetails([]);
-      setError("Beklenmeyen bir hata oluştu");
+      setError("An unexpected error occurred");
     }
   };
 
@@ -100,7 +139,7 @@ const SearchAndAddPage = ({ route }) => {
         nickname: nickname,
         plant_nickname: nickText,
         name: plantDetails[0].name,
-        frequency: plantDetails[0].water,
+        frequency: plantDetails[0].frequency,
         category: plantDetails[0].category_name,
       };
 
@@ -119,7 +158,6 @@ const SearchAndAddPage = ({ route }) => {
       const data = await response.json();
 
       if (response.status === 200) {
-        console.log("Nickname başarıyla eklendi:", data.Message);
         Alert.alert(
           "Success!",
           "Nickname added successfully!",
@@ -127,35 +165,94 @@ const SearchAndAddPage = ({ route }) => {
           { cancelable: false }
         );
       } else {
-        throw new Error(data.Message || "Beklenmeyen bir hata oluştu");
+        throw new Error(data.Message || "Unexpected error occurred");
       }
     } catch (error) {
       console.error(error);
       Alert.alert(
-        "Hata",
-        "Nickname eklenirken bir hata oluştu",
-        [{ text: "Tamam", onPress: () => console.log("OK Pressed") }],
+        "Error",
+        "An error occurred while adding the nickname",
+        [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+        { cancelable: false }
+      );
+    }
+  };
+
+  const handleAddNewPlant = async () => {
+    try {
+      // Check if all fields are filled
+      for (let key in newPlant) {
+        if (!newPlant[key]) {
+          Alert.alert(
+            "Error",
+            "Please fill out all fields",
+            [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+            { cancelable: false }
+          );
+          return;
+        }
+      }
+
+      // Send new plant data to the backend
+      const response = await fetch(
+        "http://10.30.10.210/compproject/add_plant.php",
+        {
+          method: "POST",
+          headers: {
+            Accept: "application/json",
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(newPlant),
+        }
+      );
+
+      const data = await response.json();
+
+      if (response.status === 200) {
+        Alert.alert(
+          "Success!",
+          "Plant added successfully!",
+          [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
+          { cancelable: false }
+        );
+        setIsContainerVisible(false);
+      } else {
+        throw new Error(data.Message || "Unexpected error occurred");
+      }
+    } catch (error) {
+      console.error(error);
+      Alert.alert(
+        "Error",
+        "An error occurred while adding the plant",
+        [{ text: "Ok", onPress: () => console.log("OK Pressed") }],
         { cancelable: false }
       );
     }
   };
 
   return (
-    <ImageBackground source={require("./assets/try.jpg")} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+    <ImageBackground style={{ flex: 1 }}>
+      <ScrollView
+        contentContainerStyle={{ flexGrow: 1 }}
+        ref={ScrollViewRef} // Reference for ScrollView
+      >
         <View
           style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
         >
           <View style={{ marginTop: 20 }}>
-            <Text style={styles.welcomeText}></Text>
-            <Text style={[styles.inputLabel]}>Enter a plant name:</Text>
-
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.input}
-                value={searchText}
-                onChangeText={(text) => setSearchText(text)}
-              />
+            <Text style={styles.welcomeText}>Welcome, {nickname}</Text>
+            <View style={styles.searchContainer}>
+              <View style={styles.inputContainer}>
+                <TextInput
+                  ref={inputRef} // Reference for TextInput
+                  style={styles.input}
+                  value={searchText}
+                  onChangeText={(text) => setSearchText(text)}
+                  placeholder="Enter a plant name"
+                  onFocus={handleInputFocus} // Call handleInputFocus when TextInput is focused
+                  onBlur={handleInputBlur} // Call handleInputBlur when TextInput is blurred
+                />
+              </View>
             </View>
             <TouchableOpacity
               style={styles.searchButton}
@@ -170,72 +267,104 @@ const SearchAndAddPage = ({ route }) => {
             </TouchableOpacity>
           </View>
 
-          {plantDetails.length > 0 && (
-            <View style={{ marginTop: 20 }}>
-              <Text style={styles.inputLabel}>Plant Details:</Text>
-
-              <View style={styles.greenContainer}>
-                <View style={styles.upperContainer}>
-                  <View style={styles.upperLeftContainer}>
-                    <Text style={styles.text}>
-                      Plant Name: {plantDetails[0].name}
-                    </Text>
-                    <Text style={styles.text}>
-                      Category: {plantDetails[0].category_name}
-                    </Text>
+          <View style={{ marginTop: 20 }}>
+            {plantDetails.length > 0 && (
+              <View style={styles.container}>
+                <Text style={styles.nameText}>
+                  <Text style={styles.nameText}>Name:</Text>{" "}
+                  {plantDetails[0].name}
+                </Text>
+                <Text style={styles.text}>
+                  <Text style={styles.catText}>Category:</Text>{" "}
+                  {plantDetails[0].category_name}
+                </Text>
+                <View style={styles.subContainer}>
+                  <View style={styles.sub1}>
+                    <View style={styles.row}>
+                      <Image
+                        source={require("./assets/thermometer.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.text}>
+                        Ideal Temperature: {plantDetails[0].ideal_temperature}
+                      </Text>
+                    </View>
+                    <View style={styles.row}>
+                      <Image
+                        source={require("./assets/hourglass.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.text}>
+                        Lifespan: {plantDetails[0].lifespan}
+                      </Text>
+                    </View>
+                    <View style={styles.row}>
+                      <Image
+                        source={require("./assets/plant.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.text}>
+                        Soilcare: {plantDetails[0].soilcare}
+                      </Text>
+                    </View>
                   </View>
-                  <View style={styles.upperRightContainer}>
-                    <Text style={styles.text}>
-                      Ideal Temperature: {plantDetails[0].ideal_temperature}
-                    </Text>
-                    <Text style={styles.text}>
-                      Lifespan: {plantDetails[0].lifespan}
-                    </Text>
-                    <Text style={styles.text}>
-                      Soilcare: {plantDetails[0].soilcare}
-                    </Text>
+                  <View style={styles.sub2}>
+                    <View style={styles.row}>
+                      <Image
+                        source={require("./assets/sun.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.text}>
+                        Sunlight: {plantDetails[0].sunlight}
+                      </Text>
+                    </View>
+                    <View style={styles.row}>
+                      <Image
+                        source={require("./assets/schedule.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.text}>
+                        Planting Time: {plantDetails[0].planting_time}
+                      </Text>
+                    </View>
+                    <View style={styles.row}>
+                      <Image
+                        source={require("./assets/drop.png")}
+                        style={styles.icon}
+                      />
+                      <Text style={styles.text}>
+                        Watering: {plantDetails[0].water}
+                      </Text>
+                    </View>
                   </View>
                 </View>
-                <View style={styles.lowerContainer}>
-                  <View style={styles.lowerLeftContainer}>
-                    <Text style={styles.text}>
-                      Sunlight: {plantDetails[0].sunlight}
-                    </Text>
-                    <Text style={styles.text}>
-                      Planting Time: {plantDetails[0].planting_time}
-                    </Text>
-                    <Text style={styles.text}>
-                      Water: {plantDetails[0].water}
-                    </Text>
-                  </View>
-                  <View style={styles.lowerRightContainer}>
-                    <Image
-                      source={{ uri: "https://example.com/image.jpg" }} // fotoğrafı buraya eklenecek
-                      style={{ width: 100, height: 100 }}
-                    />
-                  </View>
-                </View>
-              </View>
-              <TextInput
-                style={styles.input}
-                value={nickText} // nickText değerini TextInput'a atayın
-                onChangeText={(text) => setNickText(text)} // Kullanıcının girdiği metni nickText state'ine kaydedin
-              />
-
-              {userType === "expert" && (
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter plant nickname"
+                  value={nickText}
+                  onChangeText={(text) => setNickText(text)}
+                />
                 <TouchableOpacity
                   style={styles.addButton}
                   onPress={handleAddPlant}
                 >
                   <Text style={styles.buttonText}>Add Plant</Text>
                 </TouchableOpacity>
-              )}
-            </View>
-          )}
-
-          {error && <Text style={styles.errorText}>{error}</Text>}
+              </View>
+            )}
+            {error && <Text style={styles.errorText}>{error}</Text>}
+          </View>
         </View>
       </ScrollView>
+      <TouchableOpacity
+        style={styles.addPlantButton}
+        onPress={() => navigation.navigate("Plant")} // Plant.js'e yönlendirme
+      >
+        <Image
+          source={require("./assets/add.png")}
+          style={styles.addPlantButtonImage}
+        />
+      </TouchableOpacity>
     </ImageBackground>
   );
 };
@@ -247,8 +376,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   inputLabel: {
-    fontSize: 15, // Yazı boyutunu artırma
-    fontWeight: "bold", // Kalınlığı bold yapma
+    fontSize: 15,
   },
   buttonText: {
     color: "white",
@@ -262,17 +390,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     marginBottom: 5,
   },
-  nicknameInputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "white",
-    opacity: 0.8,
-    borderRadius: 5,
-    paddingVertical: 5,
-    paddingHorizontal: 5,
-    marginBottom: 5,
-    width: 210,
-  },
+
   input: {
     borderWidth: 1,
     borderColor: "black",
@@ -282,77 +400,133 @@ const styles = StyleSheet.create({
   },
   addButton: {
     marginTop: 10,
-    backgroundColor: "#7C9070",
+    backgroundColor: "green",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
-    width: 215, // Genişliği artırabilir veya düzenleyebilirsiniz
-    height: 40, // Yüksekliği artırabilir veya düzenleyebilirsiniz
   },
   searchButton: {
     marginTop: 10,
-    backgroundColor: "#7C9070",
+    backgroundColor: "#F6F6F6",
     padding: 10,
     borderRadius: 5,
     alignItems: "center",
-    width: 215, // Genişliği artırabilir veya düzenleyebilirsiniz
-    height: 40, // Yüksekliği artırabilir veya düzenleyebilirsiniz
-  },
-
-  greenContainer: {
-    backgroundColor: "white",
-    height: 400,
-    width: 300,
-    marginHorizontal: 20,
-    marginTop: 20,
-    opacity: 0.8,
-    borderRadius: 20,
-  },
-  upperContainer: {
-    flexDirection: "row",
-    flex: 1,
-    paddingRight: 10,
-    paddingTop: 10,
-    paddingLeft: 10,
-  },
-  lowerContainer: {
-    flexDirection: "row",
-    flex: 1,
-    paddingLeft: 10,
-    paddingBottom: 10,
-    paddingRight: 10,
-  },
-  upperLeftContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "flex-start",
-  },
-  upperRightContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "flex-start",
-    backgroundColor: "#FEE8B0",
-  },
-  lowerLeftContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "flex-end",
-    backgroundColor: "#9CA777",
-  },
-  lowerRightContainer: {
-    flex: 1,
-    padding: 20,
-    justifyContent: "flex-end",
-    alignItems: "center",
-  },
-  text: {
-    color: "black",
-    fontWeight: "bold",
+    width: 80,
   },
   errorText: {
     color: "red",
-    marginTop: 20,
+    marginTop: 10,
+  },
+  text: {
+    fontSize: 14,
+    marginBottom: 5,
+  },
+  container: {
+    backgroundColor: "#E6F2E6",
+    borderRadius: 10,
+    marginBottom: 10,
+    height: 400,
+    width: 350,
+    padding: 10,
+  },
+  nameText: {
+    fontWeight: "bold",
+    fontSize: 20,
+  },
+  catText: {
+    fontSize: 16,
+  },
+  subContainer: {
+    marginTop: 40,
+    width: "100%",
+    height: "60%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderRadius: 10,
+    overflow: "hidden",
+  },
+  sub1: {
+    width: "48%",
+    padding: 10,
+    marginBottom: 10, // Add marginBottom here
+  },
+  sub2: {
+    width: "48%",
+    padding: 10,
+    marginBottom: 10, // Add marginBottom here
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 35,
+  },
+  icon: {
+    width: 20,
+    height: 20,
+    marginRight: 10,
+  },
+  floatingButton: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    backgroundColor: "rgba(255, 255, 255, 0.8)",
+    padding: 10,
+    borderRadius: 50,
+    elevation: 5, // Adds shadow for Android
+    shadowColor: "#000", // Adds shadow for iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+  },
+  floatingButtonImage: {
+    width: 50,
+    height: 50,
+  },
+  closeButtonImage: {
+    width: 25,
+    height: 25,
+  },
+  sideContainer: {
+    position: "absolute",
+    bottom: 30,
+    right: 30,
+    width: 300,
+    height: 700,
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
+    padding: 10,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+  },
+  box: {
+    marginBottom: 10,
+  },
+  label: {
+    fontWeight: "bold",
+    marginBottom: 5,
+  },
+  input: {
+    borderWidth: 1,
+    borderColor: "black",
+    borderRadius: 5,
+    padding: 8,
+  },
+  closeButton: {
+    position: "absolute",
+    top: 5,
+    right: 5,
+  },
+  addPlantButton: {
+    position: "absolute",
+    top: 650,
+    right: 15,
+  },
+  addPlantButtonImage: {
+    width: 40,
+    height: 40,
   },
 });
-
 export default SearchAndAddPage;

@@ -3,10 +3,11 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  FlatList,
   TextInput,
   Image,
+  ImageBackground,
+  FlatList,
+  StyleSheet,
 } from "react-native";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
@@ -84,9 +85,9 @@ const Forum = ({ route }) => {
             id: Date.now().toString(),
             question_text: newTweetText.trim(),
             image: null,
-            liked: false,
-            likes: 0,
             comments: [],
+            nickname,
+            userType,
           };
           setTweets([newTweet, ...tweets]);
           setNewTweetText("");
@@ -95,20 +96,6 @@ const Forum = ({ route }) => {
           console.error("Error:", error);
         });
     }
-  };
-
-  const handleLike = (questionId) => {
-    setTweets((prevTweets) =>
-      prevTweets.map((tweet) =>
-        tweet.id === questionId
-          ? {
-              ...tweet,
-              liked: !tweet.liked,
-              likes: tweet.liked ? tweet.likes - 1 : tweet.likes + 1,
-            }
-          : tweet
-      )
-    );
   };
 
   const handleComment = (questionId) => {
@@ -130,7 +117,6 @@ const Forum = ({ route }) => {
         })
         .then((response) => {
           console.log("Comment added:", response.data);
-          // Yeni yorumun veri yapısına eklenmesi
           const updatedTweets = tweets.map((tweet) =>
             tweet.id === commentingTweetId
               ? {
@@ -151,6 +137,7 @@ const Forum = ({ route }) => {
         });
     }
   };
+
   const fetchComments = (questionId) => {
     axios
       .post("http://10.30.10.210/compproject/get_all_comments.php", {
@@ -172,126 +159,131 @@ const Forum = ({ route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.backgroundImage}>
-        <Image
-          source={require("./assets/forum.jpg")}
-          style={StyleSheet.absoluteFillObject}
-          resizeMode="cover"
-        />
-      </View>
+      <ImageBackground style={styles.backgroundImage}>
+        <FlatList
+          data={tweets}
+          renderItem={({ item }) => {
+            if (!item) {
+              return null; // Avoid rendering if item is undefined
+            }
 
-      <FlatList
-        data={tweets}
-        renderItem={({ item }) => {
-          if (!item) {
-            return null; // Avoid rendering if item is undefined
-          }
-
-          return (
-            <View style={styles.tweetContainer}>
-              <View style={styles.avatar}></View>
-              <View style={styles.tweetContent}>
-                <Text style={styles.nickname}>
-                  {item.nickname || "Unknown"}{" "}
-                  {item.userType === "expert" && (
-                    <AntDesign name="checkcircle" size={16} color="green" />
+            return (
+              <View style={styles.tweetContainer}>
+                <View style={styles.avatarContainer}>
+                  {item.userType === "expert" ? (
+                    <Image
+                      source={require("./assets/expert.png")}
+                      style={styles.avatarImage}
+                    />
+                  ) : (
+                    <Image
+                      source={require("./assets/enthusiast.png")}
+                      style={styles.avatarImage}
+                    />
                   )}
-                </Text>
-
-                <Text style={styles.tweetText}>
-                  Question ID: {item.question_id} - {item.question_text}
-                </Text>
-
-                {item.image && (
-                  <Image
-                    source={{ uri: item.image }}
-                    style={styles.tweetImage}
-                  />
-                )}
-                <View style={styles.actionsContainer}>
-                  <TouchableOpacity
-                    onPress={() => handleLike(item.id)}
-                    style={styles.actionButton}
-                  >
-                    <Ionicons
-                      name={item.liked ? "heart" : "heart-outline"}
-                      size={20}
-                      color={item.liked ? "pink" : "#657786"}
-                    />
-                    <Text style={styles.actionButtonText}>{item.likes}</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      handleComment(item.id);
-                      fetchComments(item.id);
-                    }}
-                    style={styles.actionButton}
-                  >
-                    <Ionicons
-                      name="chatbubble-outline"
-                      size={20}
-                      color="#657786"
-                    />
-
-                    <Text style={styles.actionButtonText}>add</Text>
-                  </TouchableOpacity>
                 </View>
-                {item.id === showCommentsForTweetId && (
-                  <View style={styles.commentContainer}>
-                    <TextInput
-                      style={styles.commentInput}
-                      placeholder="Add a comment..."
-                      value={commentText}
-                      onChangeText={(text) => setCommentText(text)}
+                <View style={styles.tweetContent}>
+                  <Text style={styles.nickname}>
+                    {item.nickname || "Unknown"}{" "}
+                    {item.userType === "expert" ? (
+                      <AntDesign name="checkcircle" size={16} color="green" />
+                    ) : null}
+                  </Text>
+
+                  <Text style={styles.tweetText}>{item.question_text}</Text>
+
+                  {item.image && (
+                    <Image
+                      source={{ uri: item.image }}
+                      style={styles.tweetImage}
                     />
+                  )}
+                  <View style={styles.actionsContainer}>
                     <TouchableOpacity
                       onPress={() => {
-                        handleAddComment();
-                        // Hide the comments section after adding a comment
+                        handleComment(item.id);
+                        fetchComments(item.id);
                       }}
-                      style={styles.addButton}
+                      style={styles.actionButton}
                     >
-                      <Text style={styles.addButtonText}>Add</Text>
+                      <Ionicons
+                        name="chatbubble-outline"
+                        size={20}
+                        color="#657786"
+                      />
+                      <Text style={styles.actionButtonText}>add</Text>
                     </TouchableOpacity>
                   </View>
-                )}
-
-                {item.id === showCommentsForTweetId &&
-                  Array.isArray(item.comments) &&
-                  item.comments.map((comment, index) => (
-                    <View key={index} style={styles.commentBox}>
-                      <Text style={[styles.commentText, { color: "black" }]}>
-                        {comment.nickname || "Unknown"}{" "}
-                        {comment.userType === "expert" && (
-                          <AntDesign
-                            name="checkcircle"
-                            size={16}
-                            color="green"
-                            style={{ marginLeft: 5 }} // Yeşil işaretin sol boşluğunu ayarla
-                          />
-                        )}
-                        : {comment.comment_text}
-                      </Text>
+                  {item.id === showCommentsForTweetId && (
+                    <View style={styles.commentContainer}>
+                      <TextInput
+                        style={styles.commentInput}
+                        placeholder="Add a comment..."
+                        value={commentText}
+                        onChangeText={(text) => setCommentText(text)}
+                      />
+                      <TouchableOpacity
+                        onPress={() => {
+                          handleAddComment();
+                          // Hide the comments section after adding a comment
+                        }}
+                        style={styles.addButton}
+                      >
+                        <Text style={styles.addButtonText}>Add</Text>
+                      </TouchableOpacity>
                     </View>
-                  ))}
+                  )}
+
+                  {item.id === showCommentsForTweetId &&
+                    Array.isArray(item.comments) &&
+                    item.comments.map((comment, index) => (
+                      <View key={index} style={styles.commentBox}>
+                        <View style={styles.avatarContainer}>
+                          {comment.userType === "expert" ? (
+                            <Image
+                              source={require("./assets/expert.png")}
+                              style={styles.avatarImage}
+                            />
+                          ) : (
+                            <Image
+                              source={require("./assets/enthusiast.png")}
+                              style={styles.avatarImage}
+                            />
+                          )}
+                        </View>
+                        <Text style={[styles.commentText, { color: "black" }]}>
+                          {comment.nickname || "Unknown"}:{" "}
+                          {comment.userType === "expert" ? (
+                            <AntDesign
+                              name="checkcircle"
+                              size={16}
+                              color="green"
+                              style={{ marginLeft: 5 }}
+                            />
+                          ) : null}{" "}
+                          {comment.comment_text}
+                        </Text>
+                      </View>
+                    ))}
+                </View>
               </View>
-            </View>
-          );
-        }}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.tweetList}
-      />
-      <View style={styles.inputContainer}>
-        <TextInput
-          style={styles.input}
-          placeholder="What's happening?"
-          value={newTweetText}
-          onChangeText={(text) => setNewTweetText(text)}
+            );
+          }}
+          keyExtractor={(item) => item.id}
+          contentContainerStyle={styles.tweetList}
         />
-        <TouchableOpacity onPress={handleAddTweet} style={styles.addButton}>
-          <Text style={styles.addButtonText}>Add</Text>
-        </TouchableOpacity>
-      </View>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            placeholder="What's on your mind?"
+            value={newTweetText}
+            onChangeText={(text) => setNewTweetText(text)}
+          />
+          <TouchableOpacity onPress={handleAddTweet} style={styles.addButton}>
+            <Text style={styles.addButtonText}>Add</Text>
+          </TouchableOpacity>
+        </View>
+      </ImageBackground>
     </View>
   );
 };
@@ -302,6 +294,11 @@ const styles = StyleSheet.create({
     padding: 16,
     backgroundColor: "white",
   },
+  avatarContainer: {
+    marginRight: 8,
+    justifyContent: "center",
+    alignItems: "center",
+  },
   tweetContainer: {
     flexDirection: "row",
     marginBottom: 16,
@@ -309,15 +306,10 @@ const styles = StyleSheet.create({
     borderBottomColor: "#e1e8ed",
     paddingBottom: 8,
   },
-  commentText: {
-    color: "black", // Yorum yazısının rengi siyah olacak
-  },
-  avatar: {
+  avatarImage: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#ccc",
-    marginRight: 12,
   },
   tweetContent: {
     flex: 1,
@@ -379,9 +371,12 @@ const styles = StyleSheet.create({
     padding: 8,
     borderRadius: 8,
     marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
   },
   commentText: {
     color: "#333",
+    marginLeft: 8,
   },
   inputContainer: {
     flexDirection: "row",
@@ -400,25 +395,13 @@ const styles = StyleSheet.create({
     paddingLeft: 16,
     paddingRight: 16,
   },
-  searchAddButton: {
-    backgroundColor: "rgba(156, 167, 119, 0.7)",
-    borderRadius: 20,
-    padding: 16,
-    alignItems: "center",
-    marginTop: 16,
-  },
-  searchAddButtonText: {
-    color: "white",
-    fontSize: 16,
-  },
   backgroundImage: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    width: "100%",
-    height: "100%",
-    opacity: 0.1,
-    zIndex: -1,
+    flex: 1,
+    resizeMode: "cover",
+    justifyContent: "center",
+  },
+  tweetList: {
+    paddingBottom: 80, // Leave space for the input box
   },
 });
 

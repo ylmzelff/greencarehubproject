@@ -72,6 +72,8 @@ export default class EnthusiastSignInScreen extends Component {
   };
 
   render() {
+    const { nickname, password, showSuccessMessage } = this.state;
+
     return (
       <ImageBackground
         source={require("./assets/enthusiast.jpg")}
@@ -80,26 +82,19 @@ export default class EnthusiastSignInScreen extends Component {
         <View style={styles.container}>
           <View style={styles.overlay}>
             <View style={styles.bottomContainer}>
-              <TouchableOpacity onPress={() => this.nicknameInput.focus()}>
-                <Text style={styles.placeholderText}>Nickname</Text>
-              </TouchableOpacity>
               <TextInput
-                ref={(input) => (this.nicknameInput = input)}
-                style={styles.input}
+                style={styles.placeholderText}
+                placeholder="Nickname"
                 placeholderTextColor="black"
-                value={this.state.nickname} // Burada nickname kullanılmalı
+                value={nickname}
                 onChangeText={(nickname) => this.setState({ nickname })}
               />
-
-              <TouchableOpacity onPress={() => this.passwordInput.focus()}>
-                <Text style={styles.placeholderText}>Password</Text>
-              </TouchableOpacity>
               <TextInput
-                ref={(input) => (this.passwordInput = input)}
-                style={styles.input}
+                style={styles.placeholderText}
+                placeholder="Password"
                 placeholderTextColor="black"
                 secureTextEntry
-                value={this.state.password}
+                value={password}
                 onChangeText={(password) => this.setState({ password })}
               />
               <TouchableOpacity
@@ -108,6 +103,9 @@ export default class EnthusiastSignInScreen extends Component {
               >
                 <Text style={styles.buttonText}>Sign In</Text>
               </TouchableOpacity>
+              {showSuccessMessage && (
+                <Text style={styles.successText}>Giriş başarılı!</Text>
+              )}
             </View>
           </View>
         </View>

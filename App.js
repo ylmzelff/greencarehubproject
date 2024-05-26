@@ -3,6 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { NavigationContainer } from "@react-navigation/native";
 import HomeScreen from "./HomeScreen";
 import MainPage from "./MainPage";
+import PlantScreen from "./PlantScreen"; // Update the path if necessary
 
 import ExpertHomeScreen from "./ExpertHomeScreen";
 import EnthusiastHomeScreen from "./EnthusiastHomeScreen";
@@ -28,6 +29,7 @@ const App = () => {
         <Stack.Navigator initialRouteName="Welcome">
           <Stack.Screen name="Welcome" component={WelcomeScreen} />
           <Stack.Screen name="ExpertHome" component={ExpertHomeScreen} />
+          <Stack.Screen name="Plant" component={PlantScreen} />
           <Stack.Screen
             name="EnthusiastHome"
             component={EnthusiastHomeScreen}

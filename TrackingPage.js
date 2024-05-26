@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Image,
   Alert,
+  ScrollView,
 } from "react-native";
 import { Calendar } from "react-native-calendars";
 
@@ -17,7 +18,7 @@ const TrackingPage = ({ route }) => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
-    fetch(`http://10.30.10.210/compproject/get_plant_info.php`, {
+    fetch("http://10.30.10.210/compproject/get_plant_info.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -26,7 +27,11 @@ const TrackingPage = ({ route }) => {
     })
       .then((response) => response.json())
       .then((data) => {
-        setPlantInfo(data);
+        if (data.frequency) {
+          setPlantInfo(data);
+        } else {
+          setPlantInfo({ ...data, frequency: "once a week" });
+        }
       })
       .catch((error) => {
         console.error(error);
@@ -35,6 +40,9 @@ const TrackingPage = ({ route }) => {
   }, [plantRealName]);
 
   const getFrequencyNumber = (frequency) => {
+    if (!frequency) {
+      return 1;
+    }
     switch (frequency.toLowerCase()) {
       case "once a week":
         return 1;
@@ -95,6 +103,10 @@ const TrackingPage = ({ route }) => {
         return require("./assets/ChineRose.jpg");
       case "cucumber":
         return require("./assets/cucumber.jpg");
+      case "flamingo":
+        return require("./assets/flamingoflower.png");
+      case "lily":
+        return require("./assets/lily.png");
       // Add cases for other plant names
       default:
         return require("./assets/default.png");
@@ -102,44 +114,37 @@ const TrackingPage = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.greenContainer}>
-        <View style={styles.textContainer}>
-          <Text style={styles.text1}>{plantNickname}</Text>
-          <Text style={styles.text2}>{plantRealName}</Text>
-          <Text style={styles.text2}>Frequency: {plantInfo.frequency}</Text>
+    <ScrollView contentContainerStyle={styles.container}>
+      <View style={styles.header}>
+        <View style={styles.headerTextContainer}>
+          <Text style={styles.headerText}>{plantNickname}</Text>
+          <Text style={styles.subHeaderText}>{plantRealName}</Text>
+          <Text style={styles.subHeaderText}>
+            Frequency: {plantInfo.frequency}
+          </Text>
         </View>
         <View style={styles.imageContainer}>
           <Image
             source={getImageSource(plantRealName)}
-            style={{ width: 180, height: 100, resizeMode: "contain" }}
+            style={styles.plantImage}
           />
         </View>
       </View>
-      <View style={styles.circleContainer}>
-        <View style={styles.wateringCircle}>
-          <Text style={styles.wateringCircleText}>Planting Time</Text>
-          <Text style={styles.lightCircleText}>{plantInfo.planting_time}</Text>
-          <Text style={styles.wateringCircleDate}></Text>
+      <View style={styles.infoContainer}>
+        <View style={styles.infoCircle}>
+          <Text style={styles.infoCircleText}>Planting Time</Text>
+          <Text style={styles.infoValueText}>{plantInfo.planting_time}</Text>
         </View>
-        <View style={styles.TemperatureCircle}>
-          <Text style={styles.TemperatureCircleText}>
+        <View style={styles.infoCircle}>
+          <Text style={styles.infoCircleText}>Temperature</Text>
+
+          <Text style={styles.infoValueText}>
             {plantInfo.ideal_temperature}
           </Text>
         </View>
-        <View style={styles.lightCircle}>
-          <Text style={styles.lightCircleText}>{plantInfo.sunlight}</Text>
-        </View>
-      </View>
-      <View style={styles.circleInfoContainer}>
-        <View style={styles.info1Circle}>
-          <Text style={styles.info1Text}>Planting Time</Text>
-        </View>
-        <View style={styles.info2Circle}>
-          <Text style={styles.info2Text}>Ideal Temperature</Text>
-        </View>
-        <View style={styles.info3Circle}>
-          <Text style={styles.info3Text}>Sun Exposure</Text>
+        <View style={styles.infoCircle}>
+          <Text style={styles.infoCircleText}>Sun Exposure</Text>
+          <Text style={styles.infoValueText}>{plantInfo.sunlight}</Text>
         </View>
       </View>
       <TouchableOpacity
@@ -152,24 +157,23 @@ const TrackingPage = ({ route }) => {
       </TouchableOpacity>
       {showCalendar && (
         <Calendar
+          style={styles.calendar}
           onDayPress={(day) => {
             handleAddMultipleWateringDates(day.dateString);
             setSelectedDate(day.dateString);
           }}
         />
       )}
-      <Text>
-        Selected Date: {selectedDate ? selectedDate : "No date selected"}
-      </Text>
+
       <Text style={styles.title}>Next Watering Dates</Text>
       {nextIncompleteWateringDateIndex !== -1 ? (
         <TouchableOpacity
-          style={[styles.dateItem, { backgroundColor: "#FFE6E6" }]}
+          style={[styles.dateItem, { backgroundColor: "#F1F1F1" }]}
           onPress={() => toggleWatering(nextIncompleteWateringDateIndex)}
         >
           <Text style={styles.dateText}>
             {wateringDates[
-              nextIncompleteWateringDateIndex + 1
+              nextIncompleteWateringDateIndex
             ].date.toLocaleDateString()}
           </Text>
           <Text style={styles.completedText}> Complete it </Text>
@@ -177,149 +181,90 @@ const TrackingPage = ({ route }) => {
       ) : (
         <Text>No more upcoming watering dates</Text>
       )}
-    </View>
+    </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "flex-start",
-    flex: 1,
-    backgroundColor: "white",
+    flexGrow: 1,
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 15,
+    paddingTop: 40,
+    paddingBottom: 20,
   },
-  greenContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
-    width: "100%",
-    height: "40%",
-    borderBottomLeftRadius: 55,
-    borderBottomRightRadius: 55,
+  header: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
+    alignItems: "center",
+    marginBottom: 20,
   },
-  textContainer: {
-    justifyContent: "center",
-    height: "100%",
-    width: "60%",
-    paddingLeft: 20,
-    borderRadius: 20,
+  headerTextContainer: {
+    flex: 1,
+  },
+  headerText: {
+    fontSize: 30,
+    fontWeight: "bold",
+    color: "#4CAF50",
+    marginBottom: 5,
+  },
+  subHeaderText: {
+    fontSize: 18,
+    color: "#555555",
   },
   imageContainer: {
     justifyContent: "center",
-    alignItems: "flex-end",
-    width: "50%",
+    alignItems: "center",
   },
-  text1: {
-    fontSize: 40,
-    fontWeight: "bold",
-    marginBottom: 10,
-    color: "#AFD198",
+  plantImage: {
+    width: 150,
+    height: 100,
+    resizeMode: "contain",
   },
-  text2: {
-    fontSize: 20,
-    fontWeight: "bold",
-    color: "black",
-  },
-  circleContainer: {
+  infoContainer: {
     flexDirection: "row",
     justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginTop: 20,
+    marginBottom: 20,
   },
-  wateringCircle: {
-    width: 110,
-    height: 110,
-    borderRadius: 100,
-    backgroundColor: "#FFEBB2",
-    justifyContent: "center",
+  infoCircleText: {
+    textAlign: "center",
+    fontSize: 14,
+  },
+  infoCircle: {
     alignItems: "center",
-    marginHorizontal: 10,
+    width: "30%",
+    backgroundColor: "#E0E0E0",
+    borderRadius: 10,
+    padding: 10,
   },
-  TemperatureCircle: {
-    width: 110,
-    height: 110,
-    borderRadius: 100,
-    backgroundColor: "#FFCBCB",
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 10,
-  },
-  lightCircle: {
-    width: 110,
-    height: 110,
-    borderRadius: 100,
-    backgroundColor: "#AFD198",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  wateringCircleText: {
-    fontSize: 20,
-    color: "black",
+  infoCircleText: {
+    fontSize: 16,
     fontWeight: "bold",
+    color: "#333333",
   },
-  TemperatureCircleText: {
-    fontSize: 20,
-    color: "black",
-    fontWeight: "bold",
-  },
-  lightCircleText: {
-    fontSize: 20,
-    color: "black",
-    fontWeight: "bold",
-  },
-  circleInfoContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    paddingHorizontal: 20,
-    marginTop: 10,
-  },
-  info1Circle: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 13,
-  },
-  info2Circle: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 14,
-  },
-  info3Circle: {
-    justifyContent: "center",
-    alignItems: "center",
-    marginHorizontal: 15,
-  },
-  info1Text: {
-    fontSize: 13,
-    color: "black",
-    fontWeight: "bold",
-  },
-  info2Text: {
-    fontSize: 13,
-    color: "black",
-    fontWeight: "bold",
-  },
-  info3Text: {
-    fontSize: 13,
-    color: "black",
-    fontWeight: "bold",
+  infoValueText: {
+    fontSize: 14,
+    color: "#666666",
   },
   selectDateButton: {
-    backgroundColor: "#AFD198",
-    padding: 10,
+    backgroundColor: "#4CAF50",
+    paddingVertical: 12,
     borderRadius: 10,
-    marginTop: 20,
+    alignItems: "center",
+    marginBottom: 20,
   },
   selectDateButtonText: {
+    color: "#FFFFFF",
     fontSize: 16,
-    color: "white",
     fontWeight: "bold",
   },
+  selectedDateText: {
+    fontSize: 16,
+    marginBottom: 10,
+  },
   title: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "bold",
-    marginBottom: 20,
-    marginTop: 20,
+    marginBottom: 10,
   },
   dateItem: {
     flexDirection: "row",
@@ -328,16 +273,21 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderWidth: 1,
-    borderColor: "black",
-    borderRadius: 100,
+    borderColor: "#CCCCCC",
+    borderRadius: 10,
     marginBottom: 10,
   },
   dateText: {
-    fontSize: 18,
+    fontSize: 16,
   },
   completedText: {
     fontSize: 14,
-    color: "red",
+    color: "#FF5722",
+  },
+  calendar: {
+    width: "90%", // veya istediğiniz genişliği ayarlayın
+    alignSelf: "center", // takvimi ortalamak için
+    marginTop: 5,
   },
 });
 

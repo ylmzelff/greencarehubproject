@@ -5,7 +5,6 @@ import {
   TouchableOpacity,
   FlatList,
   StyleSheet,
-  ImageBackground,
   Image,
   TextInput,
   Alert,
@@ -14,7 +13,6 @@ import {
 
 const FavoritePlants = ({ route }) => {
   const [selectedPlant, setSelectedPlant] = useState(null);
-
   const { nickname, userType } = route.params;
   const [plantDetails, setPlantDetails] = useState([]);
   const [favoritePlants, setFavoritePlants] = useState([]);
@@ -46,6 +44,10 @@ const FavoritePlants = ({ route }) => {
         return require("./assets/ChineRose.jpg");
       case "cucumber":
         return require("./assets/cucumber.jpg");
+      case "flamingo":
+        return require("./assets/flamingoflower.png");
+      case "lily":
+        return require("./assets/lily.png");
       // Add cases for other plant names
       default:
         // If no specific image found, return a default image
@@ -69,7 +71,7 @@ const FavoritePlants = ({ route }) => {
 
     try {
       const response = await fetch(
-        "http://10.33.17.137/compproject/user_plants.php",
+        "http://10.30.10.210/compproject/user_plants.php",
         {
           method: "POST",
           headers: {
@@ -93,12 +95,11 @@ const FavoritePlants = ({ route }) => {
   };
 
   return (
-    <ImageBackground
-      source={require("./assets/favbg.jpeg")}
-      style={styles.container}
-    >
+    <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <Text style={styles.heading}>Favorite Plants</Text>
+        <Text style={[styles.heading, { color: "black" }]}>
+          Favorite Plants
+        </Text>
       </View>
       <FlatList
         data={favoritePlants}
@@ -120,7 +121,11 @@ const FavoritePlants = ({ route }) => {
               style={styles.addContainer}
               onPress={() => handleConfirmAddPlant(item)}
             >
-              <Text style={styles.addText}>+</Text>
+              <Image
+                source={require("./assets/add.png")}
+                style={styles.addIcon}
+                resizeMode="contain"
+              />
             </TouchableOpacity>
           </View>
         )}
@@ -161,7 +166,7 @@ const FavoritePlants = ({ route }) => {
           </View>
         </Modal>
       )}
-    </ImageBackground>
+    </View>
   );
 };
 
@@ -179,12 +184,11 @@ const styles = StyleSheet.create({
     fontSize: 30,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#fff",
   },
   horizontalContainer: {
     flexDirection: "row",
     alignItems: "center", // Center items vertically
-    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    backgroundColor: "#50C878", // Darker green
     marginBottom: 20,
     paddingHorizontal: 15,
     borderRadius: 50,
@@ -197,8 +201,8 @@ const styles = StyleSheet.create({
     paddingLeft: 10, // Add padding to the left
   },
   image: {
-    width: 70,
-    height: 70,
+    width: 80,
+    height: 80,
     resizeMode: "contain",
   },
   infoText: {
@@ -213,9 +217,9 @@ const styles = StyleSheet.create({
     width: 50, // Adjust width to save space
     height: 50, // Adjust height to save space
   },
-  addText: {
-    fontSize: 24, // Adjust font size to save space
-    color: "black",
+  addIcon: {
+    width: 50,
+    height: 50,
   },
   input: {
     height: 40,
@@ -226,7 +230,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
   },
   addButton: {
-    backgroundColor: "rgba(156, 167, 119, 0.7)",
+    backgroundColor: "#50C878", // Darker green
     padding: 10,
     alignItems: "center",
     borderRadius: 5,
@@ -268,3 +272,4 @@ const styles = StyleSheet.create({
 });
 
 export default FavoritePlants;
+//favourite plants

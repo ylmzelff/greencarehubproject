@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Image } from "react-native"; // Import Image component
 import { AntDesign } from "@expo/vector-icons";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import SearchAndAddPage from "./SearchAndAddPage";
@@ -10,7 +10,8 @@ import TabFruits from "./TabFruits";
 import TabFlowers from "./TabFlowers";
 import FavoritePlants from "./FavoritePlants";
 import { MainContext } from "./MainContext";
-
+import { useNavigation } from "@react-navigation/native";
+import PlantScreen from "./PlantScreen";
 const Tab = createBottomTabNavigator();
 
 const MainPage = ({ route }) => {
@@ -43,7 +44,11 @@ const BottomTabNavigator = ({ route }) => {
         component={Forum}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="message1" size={size} color={color} />
+            <Image
+              source={require("./assets/chat.png")}
+              style={{ width: size, height: size }}
+              resizeMode="contain"
+            />
           ),
         }}
         initialParams={{ nickname: nickname, userType: userType }}
@@ -53,7 +58,11 @@ const BottomTabNavigator = ({ route }) => {
         component={MainPage}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="home" size={size} color={color} />
+            <Image
+              source={require("./assets/seeds.png")}
+              style={{ width: size, height: size }}
+              resizeMode="contain"
+            />
           ),
         }}
         initialParams={{ nickname: nickname, userType: userType }}
@@ -63,7 +72,11 @@ const BottomTabNavigator = ({ route }) => {
         component={SearchAndAddPage}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="search1" size={size} color={color} />
+            <Image
+              source={require("./assets/search.png")}
+              style={{ width: size, height: size }}
+              resizeMode="contain"
+            />
           ),
         }}
         initialParams={{ nickname: nickname, userType: userType }}
@@ -73,7 +86,11 @@ const BottomTabNavigator = ({ route }) => {
         component={FavoritePlants}
         options={{
           tabBarIcon: ({ color, size }) => (
-            <AntDesign name="hearto" size={size} color={color} />
+            <Image
+              source={require("./assets/love.png")}
+              style={{ width: size, height: size }}
+              resizeMode="contain"
+            />
           ),
         }}
         initialParams={{ nickname: nickname, userType: userType }}
@@ -100,3 +117,4 @@ const styles = StyleSheet.create({
 });
 
 export default BottomTabNavigator;
+//main page
