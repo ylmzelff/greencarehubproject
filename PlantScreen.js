@@ -41,7 +41,7 @@ const PlantScreen = ({ route, navigation }) => {
 
       // Send new plant data to the backend
       const response = await fetch(
-        "http://10.30.10.210/compproject/add_plant.php",
+        "", //deleted for security
         {
           method: "POST",
           headers: {
