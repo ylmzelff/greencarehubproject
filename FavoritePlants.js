@@ -21,7 +21,7 @@ const FavoritePlants = ({ route }) => {
   const [showInput, setShowInput] = useState(false);
 
   useEffect(() => {
-    fetch("http://10.30.10.210/compproject/fav_plant.php")
+    fetch("") // deleted for security
       .then((response) => response.json())
       .then((data) => {
         setFavoritePlants(data);
@@ -33,7 +33,7 @@ const FavoritePlants = ({ route }) => {
   const handleConfirmAddPlant = (plant) => {
     setShowInput(true);
     setNickText("");
-    setSelectedPlant(plant); // Store the selected plant details
+    setSelectedPlant(plant); 
   };
 
   const getImageSource = (plantName) => {
@@ -71,7 +71,7 @@ const FavoritePlants = ({ route }) => {
 
     try {
       const response = await fetch(
-        "http://10.30.10.210/compproject/user_plants.php",
+        "", //deleted for security
         {
           method: "POST",
           headers: {
