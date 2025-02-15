@@ -18,7 +18,7 @@ const TrackingPage = ({ route }) => {
   const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
-    fetch("http://10.30.10.210/compproject/get_plant_info.php", {
+    fetch("", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
