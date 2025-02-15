@@ -21,15 +21,14 @@ class ExpertSignInScreen extends Component {
   }
 
   handleLogin = () => {
-    const { nickname, password, userType } = this.state; // userType'ı da state'ten al
-
-    fetch("http://10.30.10.210/compproject/expsignincheck.php", {
+    const { nickname, password, userType } = this.state; 
+    fetch("", { // deleted for security
       method: "POST",
       headers: {
         Accept: "application/json",
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ nickname, password, userType }), // userType'ı da gönder
+      body: JSON.stringify({ nickname, password, userType }), 
     })
       .then((response) => {
         if (!response.ok) {
@@ -38,21 +37,21 @@ class ExpertSignInScreen extends Component {
         return response.json();
       })
       .then((data) => {
-        console.log("Server response:", data); // Sunucudan gelen veriyi kontrol et
+        console.log("Server response:", data); /
         if (data.Message === "true") {
           this.setState({ showSuccessMessage: true });
           setTimeout(() => {
             this.setState({
               showSuccessMessage: false,
-              nickname: "", // Giriş başarılı olduğunda nickname alanını temizle
-              password: "", // Giriş başarılı olduğunda şifre alanını temizle
+              nickname: "", 
+              password: "",
             });
           }, 3000);
           this.handleSignIn(nickname);
         } else if (data.Message === "false") {
           Alert.alert("Uyarı", "Nickname veya şifre yanlış!");
           this.setState({
-            // Giriş başarısız olduğunda da alanları temizle
+          
             nickname: "",
             password: "",
           });
