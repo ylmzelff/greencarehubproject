@@ -15,7 +15,7 @@ const TabFruits = () => {
   const [fruits, setFruits] = useState([]);
 
   useEffect(() => {
-    fetch("http://10.30.10.210/compproject/get_fruit.php", {
+    fetch("", { //deleted for security
       method: "POST",
       headers: {
         Accept: "application/json",
