@@ -44,7 +44,7 @@ const Forum = ({ route }) => {
 
   const fetchQuestions = () => {
     axios
-      .get("http://10.30.10.210/compproject/get_all_questions.php")
+      .get("") //deleted for security
       .then((response) => {
         if (response.data && Array.isArray(response.data)) {
           const data = response.data.map((item) => ({
@@ -74,7 +74,7 @@ const Forum = ({ route }) => {
   const handleAddTweet = () => {
     if (newTweetText.trim() !== "") {
       axios
-        .post("http://10.30.10.210/compproject/entquestion.php", {
+        .post("", { //deleted for security
           nickname,
           question_text: newTweetText.trim(),
           userType,
@@ -109,7 +109,7 @@ const Forum = ({ route }) => {
   const handleAddComment = () => {
     if (commentText.trim() !== "") {
       axios
-        .post("http://10.30.10.210/compproject/add_comments.php", {
+        .post("", { //deleted for security
           question_id: commentingTweetId,
           nickname,
           comment_text: commentText.trim(),
@@ -140,7 +140,7 @@ const Forum = ({ route }) => {
 
   const fetchComments = (questionId) => {
     axios
-      .post("http://10.30.10.210/compproject/get_all_comments.php", {
+      .post("", { //deleted for security
         question_id: questionId,
       })
       .then((response) => {
