@@ -21,7 +21,7 @@ export default class ExpertSignUpScreen extends Component {
   }
 
   InsertRecord = () => {
-    const { nickname_exp, email, password, confirm_password } = this.state; // nickname_exp olarak state'ten doğru şekilde alıyoruz
+    const { nickname_exp, email, password, confirm_password } = this.state; 
 
     if (
       nickname_exp.length === 0 ||
@@ -31,13 +31,13 @@ export default class ExpertSignUpScreen extends Component {
     ) {
       alert("Required Field is missing!");
     } else {
-      var InsertAPIURL = "http://10.30.10.210/compproject/insert.php";
+      var InsertAPIURL = ""; //deleted for security
       var headers = {
         Accept: "application/json",
         "Content-Type": "application/json",
       };
       var Data = {
-        nickname: nickname_exp, // nickname_exp olarak geçiyoruz
+        nickname: nickname_exp, 
         email: email,
         password: password,
         confirm_password: confirm_password,
@@ -52,9 +52,9 @@ export default class ExpertSignUpScreen extends Component {
         .then((response) => {
           alert(response[0].Message);
           if (
-            response[0].Message === "User has been registered successfully" // Expert yazmışsınız, ancak PHP tarafında "User" olarak kontrol ediyorsunuz
+            response[0].Message === "User has been registered successfully" 
           ) {
-            this.handleSignIn(email); // email olarak geçiriyoruz, bu şekilde handleSignIn fonksiyonunu doğru çağırmış oluyoruz
+            this.handleSignIn(email); 
           }
         })
         .catch((error) => {
