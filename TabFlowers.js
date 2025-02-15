@@ -15,7 +15,7 @@ const TabFlowers = () => {
   const [flowers, setFlowers] = useState([]);
 
   useEffect(() => {
-    fetch("http://10.30.10.210/compproject/get_flower.php", {
+    fetch("", {
       method: "POST",
       headers: {
         Accept: "application/json",
