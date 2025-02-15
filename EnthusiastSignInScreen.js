@@ -24,7 +24,7 @@ export default class EnthusiastSignInScreen extends Component {
   handleLogin = () => {
     const { nickname, password, userType } = this.state; // userType'ı da state'ten al
 
-    fetch("http://10.30.10.210/compproject/entsignincheck.php", {
+    fetch("", { //deleted for security
       method: "POST",
       headers: {
         Accept: "application/json",
