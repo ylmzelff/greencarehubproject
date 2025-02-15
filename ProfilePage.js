@@ -41,7 +41,7 @@ export default class ProfilePage extends Component {
     }
 
     axios
-      .post("http://10.30.10.210/compproject/save_profile.php", {
+      .post("", { //deleted for security
         nickname: nickname,
         email: email,
         icontype: selectedPicture.icontype,
